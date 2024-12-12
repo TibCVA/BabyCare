@@ -1,0 +1,235 @@
+<!DOCTYPE html> 
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="viewport-fit=cover, width=device-width, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#FFFFFF">
+    <meta name="color-scheme" content="light">
+    <title>BabyCare</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-light: #F49FB2;
+            --brand-medium: #E47A95;
+            --brand-dark: #D45A75;
+            --pure-white: #FFFFFF;
+            
+            --elevation-1: 
+                0 1px 3px rgba(212,90,117,0.05),
+                0 1px 2px rgba(212,90,117,0.1);
+            --elevation-2: 
+                0 4px 6px rgba(212,90,117,0.1),
+                0 2px 4px rgba(212,90,117,0.06);
+            --elevation-3: 
+                0 10px 20px rgba(212,90,117,0.15),
+                0 3px 6px rgba(212,90,117,0.1);
+            
+            --safe-top: env(safe-area-inset-top, 47px);
+            --safe-bottom: env(safe-area-inset-bottom, 34px);
+            --dynamic-island-padding: 59px;
+        }
+
+        body {
+            background: #FDF7F9;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .nav-blur {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            border-bottom: 1px solid rgba(244,159,178, 0.1);
+        }
+
+        .app-button {
+            background: linear-gradient(135deg, var(--brand-light), var(--brand-medium));
+            border-radius: 12px;
+            padding: 12px 24px;
+            color: white;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: var(--elevation-2);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size:14px;
+        }
+
+        .app-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(to bottom, 
+                rgba(255,255,255,0.2),
+                rgba(255,255,255,0));
+            transition: opacity 0.3s ease;
+        }
+
+        .app-button:active {
+            transform: scale(0.98);
+            box-shadow: var(--elevation-1);
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            position: relative;
+            transition: all 0.4s ease;
+            overflow: hidden;
+            border: 1px solid rgba(244,159,178, 0.1);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(to right, var(--brand-light), var(--brand-medium));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--elevation-3);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .brand-gradient-text {
+            background: linear-gradient(135deg, var(--brand-dark), var(--brand-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--brand-light), var(--brand-medium));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--elevation-1);
+            position: relative;
+        }
+
+        .feature-icon::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom,
+                rgba(255,255,255,0.2),
+                rgba(255,255,255,0));
+            border-radius: inherit;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav-blur fixed w-full z-50">
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="flex items-center justify-between h-[calc(44px+var(--safe-top))] pt-[var(--safe-top)]">
+                <div class="flex items-center gap-3">
+                    <img src="assets/img/Logo2.png" alt="BabyCare Logo" class="w-8" />
+                    <span class="font-semibold text-[var(--brand-dark)]">BabyCare AI</span>
+                </div>
+                <a href="patient-info.html" class="app-button">
+                  Commencer
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenu principal -->
+    <main class="pt-[calc(44px+var(--safe-top))] px-6">
+        <section class="max-w-5xl mx-auto text-center py-16">
+            <img src="assets/img/Logo2.png" alt="BabyCare Logo" class="w-32 mx-auto mb-8" />
+            
+            <h1 class="text-4xl font-bold brand-gradient-text mb-6 leading-tight">
+                L'excellence en accompagnement PMA
+            </h1>
+            <p class="text-lg text-[var(--brand-dark)] opacity-80 max-w-xl mx-auto mb-8">
+                Optimisez votre pratique en gynécologie de la reproduction et PMA grâce à une analyse précise, un suivi personnalisé et des protocoles basés sur l'état de l'art.
+            </p>
+            <a href="patient-info.html" class="app-button text-lg">
+              Découvrir BabyCare AI
+            </a>
+        </section>
+
+        <section class="max-w-5xl mx-auto grid md:grid-cols-3 gap-6 pb-16">
+            <div class="feature-card">
+                <div class="feature-icon mb-6">
+                    <svg class="w-6 h-6 text-white relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 
+                              00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-[var(--brand-dark)] mb-3">
+                    Gestion intuitive
+                </h3>
+                <p class="text-[var(--brand-dark)] opacity-80">
+                    Une interface optimisée pour la gestion efficace de vos patientes en parcours PMA.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon mb-6">
+                    <svg class="w-6 h-6 text-white relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M9 5H7a2 2 0 00-2 2v12a2 2 0
+                              002 2h10a2 2 0 
+                              002-2V7a2 2 0 
+                              00-2-2h-2M9 5a2 2 0
+                              002 2h2a2 2 0
+                              002-2M9 5a2 2 0
+                              012-2h2a2 2 0
+                              012 2"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-[var(--brand-dark)] mb-3">
+                    Analyse IA avancée
+                </h3>
+                <p class="text-[var(--brand-dark)] opacity-80">
+                    Des analyses cliniques précises intégrant bilans hormonaux, imageries et historiques de tentatives PMA.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon mb-6">
+                    <svg class="w-6 h-6 text-white relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M9 12l2 2 4-4m6 2a9 9 0 
+                              11-18 0 9 9 0 
+                              0118 0z"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-[var(--brand-dark)] mb-3">
+                    Protocoles personnalisés
+                </h3>
+                <p class="text-[var(--brand-dark)] opacity-80">
+                    Générez des protocoles de stimulation, de fécondation et de transfert adaptés à chaque patiente.
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="text-center pb-[calc(20px+var(--safe-bottom))]">
+        <p class="text-[var(--brand-dark)] opacity-60 text-sm">
+            © 2024-2025 Thibaut Lacour - BabyCare AI
+        </p>
+    </footer>
+</body>
+</html>
