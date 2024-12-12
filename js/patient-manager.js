@@ -1,7 +1,7 @@
 // patient-manager.js
 class DiagnosticManager {
     constructor() {
-        this.apiEndpoint='https://physiocare-api.b00135522.workers.dev/'; // Remplacez par l'URL de votre nouveau worker déployé
+        this.apiEndpoint='https://royal-king-f79d.b00135522.workers.dev/'; // Remplacez par l'URL de votre nouveau worker déployé
     }
     async analyze(data) {
         const response=await fetch(this.apiEndpoint,{
@@ -19,7 +19,7 @@ class DiagnosticManager {
 
 class TreatmentManager {
     constructor() {
-        this.apiEndpoint='https://physiocare-api.b00135522.workers.dev/'; // Remplacez par l'URL de votre nouveau worker
+        this.apiEndpoint='https://royal-king-f79d.b00135522.workers.dev/'; // Remplacez par l'URL de votre nouveau worker
     }
     async getTreatment(data) {
         const response=await fetch(this.apiEndpoint,{
