@@ -6,7 +6,10 @@
   <meta name="theme-color" content="#FFFFFF" />
   <meta name="color-scheme" content="light" />
   <title>MedicalDebrief by CVA - Débrief</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet" />
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
+    rel="stylesheet"
+  />
   <!-- JS managers -->
   <script src="js/storage.js" defer></script>
   <script src="js/auth-manager.js" defer></script>
@@ -20,28 +23,46 @@
     body {
       background: #F5F9FA;
       font-family: -apple-system,BlinkMacSystemFont,sans-serif;
-      padding-top: 100px;
+      padding-top: 80px;
       padding-bottom: 20px;
     }
     .form-section {
-      background: white; border-radius: 20px; padding: 24px; margin-bottom: 16px;
+      background: white;
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 16px;
     }
     .ios-input {
       background: rgba(255,255,255,0.8);
       border: 1px solid rgba(55,167,196,0.2);
       border-radius: 12px;
-      padding: 12px 16px; font-size: 16px;
-      width: 100%; margin-bottom: 8px;
+      padding: 12px 16px;
+      font-size: 16px;
+      width: 100%;
+      margin-bottom: 8px;
+      transition: all 0.3s ease;
     }
     .app-button {
       background: linear-gradient(135deg, var(--brand-light), var(--brand-medium));
       border-radius: 12px;
-      padding: 12px 24px; color: white; font-weight: 600;
-      display: inline-block; text-align: center;
+      padding: 12px 24px;
+      color: white;
+      font-weight: 600;
+      display: inline-block;
+      text-align: center;
+      transition: transform 0.2s;
     }
-    /* Boîte pour l'analyse stylée */
-    .analysis-box, .questions-box {
-      background: #FAFEFF;
+    .app-button:active {
+      transform: scale(0.97);
+    }
+    /* Pour forcer le texte à se couper plutôt que déborder */
+    .break-words {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+    .analysis-box, .questions-box, .final-summary-box {
+      background: #F9FEFF;
       border: 1px solid rgba(55,167,196,0.2);
       border-radius: 12px;
       padding: 16px;
@@ -51,79 +72,91 @@
       margin-bottom: 12px;
     }
     .analysis-item-title {
-      font-weight: 600; color: var(--brand-dark);
+      font-weight: 600;
+      color: var(--brand-dark);
     }
     .analysis-item-content {
-      font-size: 14px; color: var(--brand-dark); opacity: 0.9;
+      font-size: 14px;
+      color: var(--brand-dark);
+      opacity: 0.9;
+    }
+    .questions-box ul {
+      list-style: disc;
+      margin-left: 1.3rem;
     }
   </style>
 </head>
 <body>
+  <!-- Barre de nav -->
   <nav class="fixed top-0 w-full bg-white shadow-sm flex items-center justify-between p-4">
     <a href="login.html" class="text-[var(--brand-dark)]">Déconnexion</a>
     <span class="font-bold">MedicalDebrief by CVA</span>
     <a href="list-visits.html" class="text-[var(--brand-light)]">Mes visites</a>
   </nav>
 
-  <main class="max-w-xl mx-auto mt-8 px-4">
-    <!-- Formulaire standard: Médecin / Date / Notes -->
+  <main class="max-w-xl mx-auto mt-4 px-4">
+    <!-- Étape 1 : Saisie et obtention de la synthèse -->
     <div class="form-section">
       <h2 class="text-lg font-semibold text-[var(--brand-dark)] mb-6">
-        Informations de la visite
+        Étape 1 : Informations & Analyse IA
       </h2>
       <label class="block mb-1 text-sm text-[var(--brand-dark)]">Médecin</label>
       <input type="text" id="doctorInput" class="ios-input" placeholder="Dr Dupont" />
+      
       <label class="block mb-1 text-sm text-[var(--brand-dark)] mt-4">Date de visite</label>
       <input type="date" id="dateInput" class="ios-input" />
+
+      <label class="block mb-1 text-sm text-[var(--brand-dark)] mt-4">Compte-rendu initial</label>
+      <textarea
+        class="ios-input h-32 resize-none"
+        id="notesInput"
+        placeholder="Décrivez l'échange..."
+      ></textarea>
+
+      <button id="analyzeBtn" class="app-button w-full mt-4">
+        Analyser (IA)
+      </button>
+
+      <!-- Boîte d'analyse & questions IA -->
+      <div id="analysisBox" class="analysis-box break-words mt-6" style="display:none;"></div>
+      <div id="questionsBox" class="questions-box break-words mt-4" style="display:none;"></div>
     </div>
 
-    <div class="form-section">
-      <h2 class="text-lg font-semibold text-[var(--brand-dark)] mb-6">
-        Notes sur l'échange
-      </h2>
-      <textarea class="ios-input h-32 resize-none" id="notesInput"
-        placeholder="Votre débrief de l'échange..."></textarea>
-    </div>
-
-    <!-- Boîte d'analyse -->
-    <div class="form-section">
+    <!-- Étape 2 : Réponses et résumé final -->
+    <div class="form-section" id="step2Section" style="display:none;">
       <h2 class="text-lg font-semibold text-[var(--brand-dark)] mb-2">
-        Analyse de Claude
+        Étape 2 : Réponses & Synthèse finale
       </h2>
-      <div id="analysisBox" class="analysis-box">
-        <p class="text-sm text-gray-500 italic">Aucune analyse pour l'instant</p>
-      </div>
-    </div>
+      <p class="text-sm text-[var(--brand-dark)] opacity-80">
+        Répondez aux questions ci-dessus, puis enregistrez la version finale :
+      </p>
+      <textarea
+        id="answersInput"
+        class="ios-input h-24 resize-none mt-2"
+        placeholder="Vos réponses ou précisions..."
+      ></textarea>
+      <div id="finalSummaryBox" class="final-summary-box break-words mt-4" style="display:none;"></div>
 
-    <!-- Boîte de questions de l'IA -->
-    <div class="form-section">
-      <h2 class="text-lg font-semibold text-[var(--brand-dark)] mb-2">
-        Questions à approfondir
-      </h2>
-      <div id="questionsBox" class="questions-box">
-        <p class="text-sm text-gray-500 italic">Pas encore de questions</p>
-      </div>
-      <!-- Zone de réponses du sales rep -->
-      <textarea id="answersInput" class="ios-input h-24 resize-none mt-2"
-        placeholder="Vos réponses ou précisions..."></textarea>
+      <button id="finalizeBtn" class="app-button w-full mt-4">
+        Générer la Synthèse Finale
+      </button>
+      <button id="saveBtn" class="app-button w-full mt-4" style="background:#2C89A0;">
+        Enregistrer la Version Finale
+      </button>
     </div>
-
-    <button id="saveBtn" class="app-button w-full mt-4">
-      Analyser & Enregistrer
-    </button>
   </main>
 
-  <footer class="text-center pt-4 mt-8">
+  <footer class="text-center pt-4 mt-4">
     <p class="text-[var(--brand-dark)] opacity-60 text-sm">
       © 2025 MedicalDebrief by CVA
     </p>
   </footer>
 
   <script>
-  document.addEventListener('DOMContentLoaded', ()=>{
+  document.addEventListener('DOMContentLoaded', () => {
     const auth = new AuthManager();
     const currentUser = auth.getCurrentUser();
-    if(!currentUser) {
+    if (!currentUser) {
       window.location.href = "login.html";
     }
 
@@ -132,107 +165,154 @@
     const doctorInput = document.getElementById('doctorInput');
     const dateInput = document.getElementById('dateInput');
     const notesInput = document.getElementById('notesInput');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+
     const analysisBox = document.getElementById('analysisBox');
     const questionsBox = document.getElementById('questionsBox');
+
+    const step2Section = document.getElementById('step2Section');
     const answersInput = document.getElementById('answersInput');
+    const finalizeBtn = document.getElementById('finalizeBtn');
     const saveBtn = document.getElementById('saveBtn');
+    const finalSummaryBox = document.getElementById('finalSummaryBox');
 
-    // URL de votre Worker Cloudflare
-    const workerURL = "https://votre-worker.cloudflare.../"; // à adapter
+    // URL de votre Worker
+    const workerURL = "https://votre-worker.cloudflare.../";
 
-    saveBtn.addEventListener('click', async ()=>{
+    let currentAnalysis = null;
+    let currentQuestions = null;
+    let finalSummaryText = "";
+
+    analyzeBtn.addEventListener('click', async () => {
       const docName = doctorInput.value.trim();
       const visitDate = dateInput.value;
       const notes = notesInput.value.trim();
-      if(!docName || !visitDate || !notes) {
-        alert("Merci de remplir tous les champs.");
+
+      if (!docName || !visitDate || !notes) {
+        alert("Veuillez renseigner médecin, date et notes.");
         return;
       }
 
-      // Construire l'objet qu'on envoie au Worker
+      // On appelle le Worker avec action = 'analysis'
       const bodyReq = {
         action: "analysis",
         data: {
-          patientInfo: {
-            salesRep: currentUser
-          },
+          patientInfo: { salesRep: currentUser },
           visitNotes: notes
-          // => Ajoutez d'autres infos si besoin
         }
       };
 
       try {
-        // Appel Worker
         const resp = await fetch(workerURL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(bodyReq)
         });
         const result = await resp.json();
-        
-        if(result.error) {
-          // Erreur renvoyée par le Worker
-          analysisBox.innerHTML = `<p class="text-sm text-red-500">Erreur Worker: ${result.error}</p>`;
-          questionsBox.innerHTML = `<p class="text-sm text-red-500">Impossible de générer des questions</p>`;
-        } else {
-          // On suppose qu'on a un JSON avec { analysis: [...], questions: [...] }
-          displayAnalysis(result.analysis);
-          displayQuestions(result.questions);
+        if (result.error) {
+          analysisBox.innerHTML = `<p class="text-sm text-red-500">${result.error}</p>`;
+          analysisBox.style.display = "block";
+          questionsBox.style.display = "none";
+          return;
         }
-      } catch(e) {
+        // On suppose { "analysis": [...], "questions": [...] }
+        currentAnalysis = result.analysis || [];
+        currentQuestions = result.questions || [];
+
+        // On affiche
+        showAnalysis(currentAnalysis);
+        showQuestions(currentQuestions);
+
+        // On révèle l'étape 2
+        step2Section.style.display = "block";
+
+      } catch (e) {
         console.error(e);
+        analysisBox.style.display = "block";
         analysisBox.innerHTML = `<p class="text-sm text-red-500">${e.message}</p>`;
       }
+    });
 
-      // Ensuite, on enregistre localement
-      const finalObj = {
+    finalizeBtn.addEventListener('click', () => {
+      // Générer un texte final qui combine l'analyse IA + les réponses 
+      const userAnswers = answersInput.value.trim();
+
+      // Ici on fait un format tout simple
+      finalSummaryText = "=== SYNTHÈSE IA ===\n";
+      if (currentAnalysis && Array.isArray(currentAnalysis)) {
+        currentAnalysis.forEach(item => {
+          finalSummaryText += `\n**${item.title}**\n${item.content}\n`;
+        });
+      }
+      finalSummaryText += "\n=== QUESTIONS IA ===\n";
+      if (currentQuestions && currentQuestions.length) {
+        currentQuestions.forEach((q, idx) => {
+          finalSummaryText += `\nQ${idx+1}: ${q}`;
+        });
+      }
+      finalSummaryText += "\n=== RÉPONSES SALES REP ===\n";
+      finalSummaryText += userAnswers || "(Aucune réponse)";
+
+      finalSummaryBox.style.display = "block";
+      finalSummaryBox.textContent = finalSummaryText; // .textContent => évite le HTML injection
+    });
+
+    saveBtn.addEventListener('click', () => {
+      // On enregistre en localStorage
+      const docName = doctorInput.value.trim();
+      const visitDate = dateInput.value;
+      const notes = notesInput.value.trim();
+      const userAnswers = answersInput.value.trim();
+
+      // finalSummaryText contient la "version finale" 
+      const visitObj = {
         user: currentUser,
         doctor: docName,
         date: visitDate,
         notes: notes,
-        // On récupère ce qui est affiché
-        analysis: analysisBox.innerText || "",
-        questions: questionsBox.innerText || "",
-        answers: answersInput.value,
+        analysis: JSON.stringify(currentAnalysis),   // on peut stocker l'analyse brute
+        questions: JSON.stringify(currentQuestions), // idem
+        answers: userAnswers,
+        finalSummary: finalSummaryText,
         createdAt: new Date().toISOString()
       };
-      visitsManager.saveVisit(finalObj);
 
-      alert("Visite enregistrée (avec analyse + questions).");
+      visitsManager.saveVisit(visitObj);
+      alert("Version finale enregistrée avec succès !");
     });
 
-    function displayAnalysis(analysisArray) {
-      // analysisArray est sensé être un tableau d'objets {title, content}
-      if(!analysisArray || !Array.isArray(analysisArray)) {
-        analysisBox.innerHTML = `<p class="text-sm text-gray-500 italic">Aucune analyse exploitable</p>`;
-        return;
+    function showAnalysis(analysisArr) {
+      if (!analysisArr || !Array.isArray(analysisArr) || analysisArr.length === 0) {
+        analysisBox.innerHTML = `<p class="text-sm text-gray-500 italic">Aucune analyse retournée.</p>`;
+      } else {
+        let html = "";
+        analysisArr.forEach(item => {
+          html += `
+            <div class="analysis-item">
+              <div class="analysis-item-title">${item.title}</div>
+              <div class="analysis-item-content">${item.content}</div>
+            </div>
+          `;
+        });
+        analysisBox.innerHTML = html;
       }
-      let html = "";
-      analysisArray.forEach(item => {
-        html += `
-          <div class="analysis-item">
-            <div class="analysis-item-title">${item.title}</div>
-            <div class="analysis-item-content">${item.content}</div>
-          </div>
-        `;
-      });
-      analysisBox.innerHTML = html;
+      analysisBox.style.display = "block";
     }
 
-    function displayQuestions(questionsArray) {
-      // questionsArray est un tableau de chaînes
-      if(!questionsArray || !Array.isArray(questionsArray) || questionsArray.length === 0) {
-        questionsBox.innerHTML = `<p class="text-sm text-gray-500 italic">Pas de questions spécifiques</p>`;
-        return;
+    function showQuestions(questionsArr) {
+      if (!questionsArr || !Array.isArray(questionsArr) || questionsArr.length === 0) {
+        questionsBox.innerHTML = `<p class="text-sm text-gray-500 italic">Aucune question renvoyée.</p>`;
+      } else {
+        let html = "<ul>";
+        questionsArr.forEach(q => {
+          // On met les questions en gras
+          html += `<li><strong>${q}</strong></li>`;
+        });
+        html += "</ul>";
+        questionsBox.innerHTML = html;
       }
-      let html = "<ul class='list-disc list-inside'>";
-      questionsArray.forEach(q => {
-        html += `<li class="mb-2">${q}</li>`;
-      });
-      html += "</ul>";
-      questionsBox.innerHTML = html;
+      questionsBox.style.display = "block";
     }
-
   });
   </script>
 </body>
