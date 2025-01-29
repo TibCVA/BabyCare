@@ -1,321 +1,241 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="viewport-fit=cover, width=device-width, maximum-scale=1.0, user-scalable=no" />
-<meta name="theme-color" content="#FFFFFF" />
-<title>BabyCare - Bilan Hormonal & Réserve Ovarienne</title>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet" />
-<script src="js/patient-storage.js" defer></script>
-<script src="js/patient-manager.js" defer></script>
-<style>
-:root {
- --brand-light:#F49FB2; --brand-medium:#E47A95; --brand-dark:#D45A75; 
- --pure-white:#FFFFFF;
- --safe-top:env(safe-area-inset-top,47px);
- --safe-bottom:env(safe-area-inset-bottom,34px);
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="viewport-fit=cover, width=device-width, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#FFFFFF">
+    <meta name="color-scheme" content="light">
+    <title>LightningDebrief by CVA - Débrief</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <script src="js/storage.js" defer></script>
+    <script src="js/auth-manager.js" defer></script>
+    <script src="js/visits-manager.js" defer></script>
 
-body {
- background:#FDF7F9;
- font-family:-apple-system,BlinkMacSystemFont,sans-serif;
- -webkit-font-smoothing:antialiased;
- padding-top:calc(200px+var(--safe-top));
- padding-bottom:calc(20px+var(--safe-bottom));
-}
-
-.nav-blur {
- background:rgba(255,255,255,0.85);
- backdrop-filter:saturate(180%) blur(20px);
- border-bottom:1px solid rgba(244,159,178,0.1);
-}
-
-.form-section {
- background:white; 
- border-radius:20px; 
- padding:24px; 
- margin-bottom:16px;
- box-shadow:0 1px 3px rgba(212,90,117,0.05),0 1px 2px rgba(212,90,117,0.1);
-}
-
-.ios-input {
- width:100%;
- padding:12px;
- border:1px solid rgba(244,159,178,0.2);
- border-radius:12px;
- margin:8px 0;
- font-size:16px;
- background:white;
-}
-
-.activity-option {
- background:rgba(255,255,255,0.8);
- border:1px solid rgba(244,159,178,0.2);
- border-radius:12px;
- padding:16px; 
- margin-bottom:8px;
- transition:all 0.3s ease; 
- cursor:pointer;
-}
-.activity-option:hover {
- transform:translateX(4px);
- border-color:var(--brand-light);
- background:rgba(244,159,178,0.05);
-}
-.activity-option.selected {
- border-color:var(--brand-light);
- background:rgba(244,159,178,0.05);
-}
-
-.intensity-selector {
- display:flex;gap:4px;padding:4px;
- background:rgba(244,159,178,0.1);
- border-radius:12px;
- margin:8px 0;
-}
-.intensity-option {
- flex:1;
- padding:12px 8px;
- text-align:center;
- border-radius:8px;
- cursor:pointer;
- font-size:14px;
- font-weight:500;
- transition:all 0.2s ease;
-}
-.intensity-option.selected {
- background:var(--brand-light);
- color:white;
-}
-
-.nav-button {
- padding:8px 16px;
- border-radius:8px;
- color:var(--brand-dark);
- font-weight:500;
-}
-
-.nav-button.primary {
- color:var(--brand-light);
- font-weight:600;
-}
-
-.progress-bar {
- height:3px;
- background:rgba(244,159,178,0.1);
-}
-.progress-bar-fill {
- height:100%;
- width:33.33%;
- background:linear-gradient(to right,var(--brand-light),var(--brand-medium));
- transition:width 0.3s ease;
-}
-</style>
+    <style>
+        :root {
+            --brand-light: #37A7C4;
+            --brand-medium: #2C89A0;
+            --brand-dark: #1E5F6E;
+            --pure-white: #FFFFFF;
+            --elevation-1: 0 1px 3px rgba(30,95,110,0.05), 0 1px 2px rgba(30,95,110,0.1);
+            --safe-top: env(safe-area-inset-top,47px);
+            --safe-bottom: env(safe-area-inset-bottom,34px);
+        }
+        body {
+            background: #F5F9FA;
+            font-family: -apple-system,BlinkMacSystemFont,sans-serif;
+            -webkit-font-smoothing: antialiased;
+            padding-top: calc(100px + var(--safe-top));
+            padding-bottom: calc(20px + var(--safe-bottom));
+        }
+        .nav-blur {
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: saturate(180%) blur(20px);
+            border-bottom: 1px solid rgba(55,167,196,0.1);
+        }
+        .form-section {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: var(--elevation-1);
+            border:1px solid rgba(55,167,196,0.1);
+        }
+        .ios-input {
+            background: rgba(255,255,255,0.8);
+            border: 1px solid rgba(55,167,196,0.2);
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 16px;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-bottom: 8px;
+        }
+        .app-button {
+            background: linear-gradient(135deg, var(--brand-light), var(--brand-medium));
+            border-radius: 12px;
+            padding: 12px 24px;
+            color: white;
+            font-weight: 600;
+            box-shadow: var(--elevation-1);
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-align: center;
+        }
+        .app-button:active {
+            transform: scale(0.98);
+        }
+        .exchange-range {
+            appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(55,167,196,0.1);
+            outline: none;
+            margin: 16px 0;
+        }
+        .exchange-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--brand-light), var(--brand-medium));
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(55,167,196,0.2);
+        }
+    </style>
 </head>
-<body class="min-h-screen">
-<nav class="nav-blur fixed w-full z-50">
- <div class="max-w-5xl mx-auto px-4">
-   <div class="flex items-center justify-between h-[calc(44px+var(--safe-top))] pt-[var(--safe-top)]">
-     <a href="patient-info.html" class="nav-button flex items-center gap-2">
-       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-       </svg>
-       Retour
-     </a>
-     <span class="font-semibold">Patient (2/6)</span>
-     <a href="symptoms.html" class="nav-button primary" id="nextButton">Suivant</a>
-   </div>
-   <div class="progress-bar">
-     <div class="progress-bar-fill"></div>
-   </div>
- </div>
-</nav>
-
-<main class="pt-[calc((44px+var(--safe-top))+100px)] px-6">
-<div class="max-w-xl mx-auto space-y-6">
- <div class="h-20"></div> 
- <!-- Section Réserve Ovarienne (AMH) -->
-  <div class="form-section">
-    <h2 class="text-lg font-semibold text-[var(--brand-dark)] mb-6">Réserve Ovarienne (AMH)</h2>
-    <div class="space-y-3" id="activities-container">
-      <div class="activity-option" data-no-activity>
-        <div class="flex justify-between items-center">
-          <div>
-            <h3 class="font-medium mb-1">Aucune donnée AMH</h3>
-            <p class="text-sm opacity-70">Pas de valeur AMH disponible</p>
-          </div>
+<body>
+    <!-- Barre de navigation -->
+    <nav class="nav-blur fixed w-full z-50 top-0 left-0 right-0">
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="flex items-center justify-between h-[calc(44px+var(--safe-top))] pt-[var(--safe-top)]">
+                <a href="login.html" class="text-[var(--brand-dark)]">← Déconnexion</a>
+                <span class="font-bold">Débrief Visite</span>
+                <a href="list-visits.html" class="text-[var(--brand-light)]">Mes visites</a>
+            </div>
         </div>
-      </div>
-      <div class="activity-option">
-        <div class="flex justify-between items-center">
-          <div>
-            <h3 class="font-medium mb-1">AMH basse</h3>
-            <p class="text-sm opacity-70">&lt; 1 ng/mL</p>
-          </div>
-        </div>
-      </div>
-      <div class="activity-option">
-        <div class="flex justify-between items-center">
-          <div>
-            <h3 class="font-medium mb-1">AMH normale</h3>
-            <p class="text-sm opacity-70">1-3 ng/mL</p>
-          </div>
-        </div>
-      </div>
-      <div class="activity-option">
-        <div class="flex justify-between items-center">
-          <div>
-            <h3 class="font-medium mb-1">AMH élevée</h3>
-            <p class="text-sm opacity-70">&gt; 3 ng/mL</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+    </nav>
 
-  <!-- Section Niveaux Hormonaux Clés (FSH / LH) -->
-  <div class="form-section">
-    <h2 class="text-lg font-semibold text-[var(--brand-dark)] mb-6">Niveaux Hormonaux Clés</h2>
-    <div class="space-y-6">
-      <div>
-        <label class="ios-label">FSH</label>
-        <div class="intensity-selector" id="frequencySelector">
-          <div class="intensity-option">Aucune</div>
-          <div class="intensity-option">Normale</div>
-          <div class="intensity-option selected">Légèrement élevée</div>
-          <div class="intensity-option">Élevée</div>
+    <main class="max-w-xl mx-auto mt-8 px-4">
+        <!-- Section Formulaire -->
+        <div class="form-section" id="debriefForm">
+            <h2 class="text-lg font-semibold text-[var(--brand-dark)] mb-6">
+                Informations de la visite
+            </h2>
+            <div>
+                <label class="block mb-1 text-sm text-[var(--brand-dark)]">Médecin</label>
+                <input type="text" id="doctorInput" class="ios-input" placeholder="Dr Dupont" />
+
+                <label class="block mb-1 text-sm text-[var(--brand-dark)] mt-4">Date de visite</label>
+                <input type="date" id="dateInput" class="ios-input" />
+            </div>
         </div>
-      </div>
-      <div>
-        <label class="ios-label">LH</label>
-        <div class="intensity-selector" id="intensitySelector">
-          <div class="intensity-option">Aucune</div>
-          <div class="intensity-option">Basse</div>
-          <div class="intensity-option selected">Normale</div>
-          <div class="intensity-option">Élevée</div>
+
+        <div class="form-section">
+            <h2 class="text-lg font-semibold text-[var(--brand-dark)] mb-6">
+                Notes sur l'échange
+            </h2>
+            <textarea class="ios-input h-32 resize-none" id="notesInput"
+                placeholder="Décrivez votre échange..."></textarea>
+            <label class="block mb-1 text-sm text-[var(--brand-dark)] mt-4">
+                Fluidité de l'échange (1-10)
+            </label>
+            <input type="range" min="1" max="10" value="5" id="rangeExchange" class="exchange-range">
+            <div class="text-center text-lg font-semibold" id="exchangeValue">5/10</div>
         </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Section Objectifs du cycle PMA -->
-  <div class="form-section">
-    <h2 class="text-lg font-semibold text-[var(--brand-dark)] mb-6">Objectifs du cycle PMA</h2>
-    <div>
-      <label class="ios-label" for="goals">Objectifs</label>
-      <textarea id="goals" class="ios-input w-full h-32 resize-none"
-        placeholder="Décrivez les objectifs du cycle PMA (ex: obtenir un blastocyste de qualité, optimiser la réponse folliculaire...)"></textarea>
-    </div>
-  </div>
-</div>
-</main>
+        <div class="form-section">
+            <h2 class="text-lg font-semibold text-[var(--brand-dark)] mb-2">
+                Synthèse Claude
+            </h2>
+            <p class="text-sm text-[var(--brand-dark)] opacity-80 mb-3">
+                Générée automatiquement à l'enregistrement.
+            </p>
+            <div id="summaryBox" class="p-3 border border-dashed rounded-lg text-sm text-[var(--brand-dark)] 
+                 border-[var(--brand-light)] bg-[rgba(255,255,255,0.6)] min-h-[60px]">
+                (La synthèse apparaîtra ici)
+            </div>
+        </div>
 
-<script>
-document.addEventListener('DOMContentLoaded',()=>{
-    window.patientManager = window.patientManager || new PatientManager();
-    const pManager=window.patientManager;
-    const patientData=pManager.loadPatientData();
+        <button id="saveBtn" class="app-button w-full mt-4">Enregistrer le débrief</button>
+    </main>
 
-    const activitiesContainer=document.getElementById('activities-container');
-    const activityOptions=activitiesContainer.querySelectorAll('.activity-option');
+    <footer class="text-center pt-4 pb-[calc(20px+var(--safe-bottom))] mt-8">
+        <p class="text-[var(--brand-dark)] opacity-60 text-sm">
+            © 2025 LightningDebrief by CVA
+        </p>
+    </footer>
 
-    activityOptions.forEach(option=>{
-      option.addEventListener('click',()=>{
-        const isNoActivity=option.hasAttribute('data-no-activity');
-        if(isNoActivity) {
-          activityOptions.forEach(o=>{
-            if(!o.hasAttribute('data-no-activity'))o.classList.remove('selected');
-          });
-        } else {
-          activitiesContainer.querySelector('[data-no-activity]').classList.remove('selected');
+    <script>
+    document.addEventListener('DOMContentLoaded', ()=>{
+        const auth = new AuthManager();
+        const currentUser = auth.getCurrentUser();
+        if(!currentUser) {
+            // Si pas d'utilisateur connecté, on redirige vers login
+            window.location.href = "login.html";
         }
-        option.classList.toggle('selected');
-        saveCurrentData();
-      });
+
+        const visitsManager = new VisitsManager();
+
+        const doctorInput = document.getElementById('doctorInput');
+        const dateInput = document.getElementById('dateInput');
+        const notesInput = document.getElementById('notesInput');
+        const rangeExchange = document.getElementById('rangeExchange');
+        const exchangeValue = document.getElementById('exchangeValue');
+        const summaryBox = document.getElementById('summaryBox');
+        const saveBtn = document.getElementById('saveBtn');
+
+        rangeExchange.addEventListener('input', ()=>{
+            exchangeValue.textContent = rangeExchange.value + "/10";
+        });
+
+        saveBtn.addEventListener('click', async ()=>{
+            // Récupérer données du formulaire
+            const docName = doctorInput.value.trim();
+            const visitDate = dateInput.value;
+            const notes = notesInput.value.trim();
+            const fluidity = parseInt(rangeExchange.value, 10);
+
+            if(!docName || !visitDate || !notes) {
+                alert("Merci de remplir tous les champs.");
+                return;
+            }
+
+            // Appel Claude
+            const summaryText = await generateClaudeSummary(notes);
+
+            // Construire un objet visite
+            const visit = {
+                user: currentUser,
+                doctor: docName,
+                date: visitDate,
+                notes: notes,
+                fluidity: fluidity,
+                summary: summaryText,
+                createdAt: new Date().toISOString()
+            };
+
+            // Enregistrer
+            visitsManager.saveVisit(visit);
+            summaryBox.textContent = summaryText || "(Aucune synthèse)";
+
+            alert("Débrief enregistré avec succès !");
+        });
+
+        // Appel direct à Claude - plus de placeholder 
+        async function generateClaudeSummary(text) {
+            try {
+                const resp = await fetch("https://api.anthropic.com/v1/complete", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        // Mettez VOTRE vraie clé ici, sans placeholder
+                        "x-api-key": "anthropic_ABC12345EXEMPLE", 
+                    },
+                    body: JSON.stringify({
+                        prompt: `Synthétise ce compte-rendu de visite:\n\n${text}\n\nRésumé:`,
+                        model: "claude-instant-1",
+                        max_tokens_to_sample: 150,
+                        temperature: 0.7
+                    })
+                });
+                if(!resp.ok) {
+                    console.error("Réponse non OK de l'API Claude", resp.status);
+                    return "(Erreur API Claude)";
+                }
+                const data = await resp.json();
+                if(data && data.completion) {
+                    return data.completion.trim();
+                }
+                return "(Pas de réponse Claude)";
+            } catch(e) {
+                console.error(e);
+                return "(Erreur pendant l'appel API)";
+            }
+        }
     });
-
-    const frequencySelector=document.getElementById('frequencySelector');
-    frequencySelector.querySelectorAll('.intensity-option').forEach(opt=>{
-      opt.addEventListener('click',()=>{
-        frequencySelector.querySelectorAll('.intensity-option').forEach(o=>o.classList.remove('selected'));
-        opt.classList.add('selected');
-        saveCurrentData();
-      });
-    });
-
-    const intensitySelector=document.getElementById('intensitySelector');
-    intensitySelector.querySelectorAll('.intensity-option').forEach(opt=>{
-      opt.addEventListener('click',()=>{
-        intensitySelector.querySelectorAll('.intensity-option').forEach(o=>o.classList.remove('selected'));
-        opt.classList.add('selected');
-        saveCurrentData();
-      });
-    });
-
-    const goalsInput=document.getElementById('goals');
-    goalsInput.addEventListener('input',saveCurrentData);
-
-    loadSavedData();
-
-    const nextButton=document.getElementById('nextButton');
-    nextButton.addEventListener('click',()=>{
-      saveCurrentData();
-      window.location.href='symptoms.html';
-    });
-
-    function saveCurrentData(){
-      const selectedActivities=Array.from(activityOptions).filter(o=>o.classList.contains('selected')).map(o=>{
-        return {
-          type:o.querySelector('h3')?.textContent||'',
-          description:o.querySelector('p')?.textContent||''
-        };
-      });
-
-      const frequency=frequencySelector.querySelector('.intensity-option.selected')?.textContent||'';
-      const intensity=intensitySelector.querySelector('.intensity-option.selected')?.textContent||'';
-      const goals=goalsInput.value||'';
-
-      const newData={...patientData};
-      // On réutilise les mêmes champs de données, on considère "physicalActivity" comme "bilanHormonal" dans le concept,
-      // mais sans changer les clés. On ne casse pas la logique interne.
-      newData.physicalActivity={
-        activities:selectedActivities,
-        frequency,
-        intensity,
-        goals
-      };
-      pManager.savePatientData(newData);
-    }
-
-    function loadSavedData(){
-      if(patientData.physicalActivity) {
-        const pa=patientData.physicalActivity;
-        if(pa.activities) {
-          pa.activities.forEach(a=>{
-            activityOptions.forEach(o=>{
-              const h3=o.querySelector('h3')?.textContent;
-              if(h3===a.type) {
-                o.classList.add('selected');
-              }
-            });
-          });
-        }
-        if(pa.frequency) {
-          frequencySelector.querySelectorAll('.intensity-option').forEach(opt=>{
-            if(opt.textContent===pa.frequency)opt.classList.add('selected');else opt.classList.remove('selected');
-          });
-        }
-        if(pa.intensity) {
-          intensitySelector.querySelectorAll('.intensity-option').forEach(opt=>{
-            if(opt.textContent===pa.intensity)opt.classList.add('selected');else opt.classList.remove('selected');
-          });
-        }
-        if(pa.goals) {
-          goalsInput.value=pa.goals;
-        }
-      }
-    }
-});
-</script>
+    </script>
 </body>
 </html>
