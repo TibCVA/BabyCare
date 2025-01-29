@@ -1,5 +1,4 @@
 // js/storage.js
-// Petit wrapper de localStorage
 class StorageUtil {
   static set(key, data) {
     localStorage.setItem(key, JSON.stringify(data));
