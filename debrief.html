@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="viewport-fit=cover, width=device-width, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#FFFFFF">
-  <meta name="color-scheme" content="light">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="viewport-fit=cover, width=device-width, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#FFFFFF" />
+  <meta name="color-scheme" content="light" />
   <title>MedicalDebrief by CVA - Débrief</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet" />
+  <!-- JS managers -->
   <script src="js/storage.js" defer></script>
   <script src="js/auth-manager.js" defer></script>
   <script src="js/visits-manager.js" defer></script>
@@ -23,28 +24,37 @@
       padding-bottom: 20px;
     }
     .form-section {
-      background: white;
-      border-radius: 20px;
-      padding: 24px;
-      margin-bottom: 16px;
+      background: white; border-radius: 20px; padding: 24px; margin-bottom: 16px;
     }
     .ios-input {
       background: rgba(255,255,255,0.8);
       border: 1px solid rgba(55,167,196,0.2);
       border-radius: 12px;
-      padding: 12px 16px;
-      font-size: 16px;
-      width: 100%;
-      margin-bottom: 8px;
+      padding: 12px 16px; font-size: 16px;
+      width: 100%; margin-bottom: 8px;
     }
     .app-button {
       background: linear-gradient(135deg, var(--brand-light), var(--brand-medium));
       border-radius: 12px;
-      padding: 12px 24px;
-      color: white;
-      font-weight: 600;
-      display: inline-block;
-      text-align: center;
+      padding: 12px 24px; color: white; font-weight: 600;
+      display: inline-block; text-align: center;
+    }
+    /* Boîte pour l'analyse stylée */
+    .analysis-box, .questions-box {
+      background: #FAFEFF;
+      border: 1px solid rgba(55,167,196,0.2);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 8px;
+    }
+    .analysis-item {
+      margin-bottom: 12px;
+    }
+    .analysis-item-title {
+      font-weight: 600; color: var(--brand-dark);
+    }
+    .analysis-item-content {
+      font-size: 14px; color: var(--brand-dark); opacity: 0.9;
     }
   </style>
 </head>
@@ -56,17 +66,15 @@
   </nav>
 
   <main class="max-w-xl mx-auto mt-8 px-4">
-    <div class="form-section" id="debriefForm">
+    <!-- Formulaire standard: Médecin / Date / Notes -->
+    <div class="form-section">
       <h2 class="text-lg font-semibold text-[var(--brand-dark)] mb-6">
         Informations de la visite
       </h2>
-      <div>
-          <label class="block mb-1 text-sm text-[var(--brand-dark)]">Médecin</label>
-          <input type="text" id="doctorInput" class="ios-input" placeholder="Dr Dupont" />
-
-          <label class="block mb-1 text-sm text-[var(--brand-dark)] mt-4">Date de visite</label>
-          <input type="date" id="dateInput" class="ios-input" />
-      </div>
+      <label class="block mb-1 text-sm text-[var(--brand-dark)]">Médecin</label>
+      <input type="text" id="doctorInput" class="ios-input" placeholder="Dr Dupont" />
+      <label class="block mb-1 text-sm text-[var(--brand-dark)] mt-4">Date de visite</label>
+      <input type="date" id="dateInput" class="ios-input" />
     </div>
 
     <div class="form-section">
@@ -77,17 +85,32 @@
         placeholder="Votre débrief de l'échange..."></textarea>
     </div>
 
+    <!-- Boîte d'analyse -->
     <div class="form-section">
       <h2 class="text-lg font-semibold text-[var(--brand-dark)] mb-2">
-        Synthèse (Claude via Worker)
+        Analyse de Claude
       </h2>
-      <div id="summaryBox" class="p-3 border border-dashed rounded-lg text-sm 
-        text-[var(--brand-dark)] min-h-[60px]">
-        (Aucune synthèse pour l'instant)
+      <div id="analysisBox" class="analysis-box">
+        <p class="text-sm text-gray-500 italic">Aucune analyse pour l'instant</p>
       </div>
     </div>
 
-    <button id="saveBtn" class="app-button w-full mt-4">Enregistrer & Analyser</button>
+    <!-- Boîte de questions de l'IA -->
+    <div class="form-section">
+      <h2 class="text-lg font-semibold text-[var(--brand-dark)] mb-2">
+        Questions à approfondir
+      </h2>
+      <div id="questionsBox" class="questions-box">
+        <p class="text-sm text-gray-500 italic">Pas encore de questions</p>
+      </div>
+      <!-- Zone de réponses du sales rep -->
+      <textarea id="answersInput" class="ios-input h-24 resize-none mt-2"
+        placeholder="Vos réponses ou précisions..."></textarea>
+    </div>
+
+    <button id="saveBtn" class="app-button w-full mt-4">
+      Analyser & Enregistrer
+    </button>
   </main>
 
   <footer class="text-center pt-4 mt-8">
@@ -97,7 +120,7 @@
   </footer>
 
   <script>
-  document.addEventListener('DOMContentLoaded', async ()=>{
+  document.addEventListener('DOMContentLoaded', ()=>{
     const auth = new AuthManager();
     const currentUser = auth.getCurrentUser();
     if(!currentUser) {
@@ -109,8 +132,13 @@
     const doctorInput = document.getElementById('doctorInput');
     const dateInput = document.getElementById('dateInput');
     const notesInput = document.getElementById('notesInput');
-    const summaryBox = document.getElementById('summaryBox');
+    const analysisBox = document.getElementById('analysisBox');
+    const questionsBox = document.getElementById('questionsBox');
+    const answersInput = document.getElementById('answersInput');
     const saveBtn = document.getElementById('saveBtn');
+
+    // URL de votre Worker Cloudflare
+    const workerURL = "https://votre-worker.cloudflare.../"; // à adapter
 
     saveBtn.addEventListener('click', async ()=>{
       const docName = doctorInput.value.trim();
@@ -121,49 +149,90 @@
         return;
       }
 
-      // 1) On fait un "analysis" + "treatment" ou juste "analysis" ?
-      //   Exemple: on fait un "analysis" sur le texte
-      const workerURL = "https://royal-king-f79d.b00135522.workers.dev/"; // Mettez l’URL de VOTRE Worker
+      // Construire l'objet qu'on envoie au Worker
       const bodyReq = {
-        action: 'analysis', // ou 'treatment' selon vos besoins
+        action: "analysis",
         data: {
-          patientInfo: { userEmail: currentUser },
-          visitNotes: notes,
-          // d'autres champs...
+          patientInfo: {
+            salesRep: currentUser
+          },
+          visitNotes: notes
+          // => Ajoutez d'autres infos si besoin
         }
       };
 
       try {
+        // Appel Worker
         const resp = await fetch(workerURL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(bodyReq)
         });
         const result = await resp.json();
-        // result contiendra l'objet { analysis: [...] } si tout va bien
+        
         if(result.error) {
-          summaryBox.textContent = "Erreur Worker: " + result.error;
+          // Erreur renvoyée par le Worker
+          analysisBox.innerHTML = `<p class="text-sm text-red-500">Erreur Worker: ${result.error}</p>`;
+          questionsBox.innerHTML = `<p class="text-sm text-red-500">Impossible de générer des questions</p>`;
         } else {
-          summaryBox.textContent = JSON.stringify(result, null, 2);
+          // On suppose qu'on a un JSON avec { analysis: [...], questions: [...] }
+          displayAnalysis(result.analysis);
+          displayQuestions(result.questions);
         }
       } catch(e) {
         console.error(e);
-        summaryBox.textContent = "Erreur: " + e.message;
+        analysisBox.innerHTML = `<p class="text-sm text-red-500">${e.message}</p>`;
       }
 
-      // 2) Enregistrer localement la visite
-      const visitObj = {
+      // Ensuite, on enregistre localement
+      const finalObj = {
         user: currentUser,
         doctor: docName,
         date: visitDate,
         notes: notes,
-        summary: summaryBox.textContent,
+        // On récupère ce qui est affiché
+        analysis: analysisBox.innerText || "",
+        questions: questionsBox.innerText || "",
+        answers: answersInput.value,
         createdAt: new Date().toISOString()
       };
-      visitsManager.saveVisit(visitObj);
+      visitsManager.saveVisit(finalObj);
 
-      alert("Visite enregistrée !");
+      alert("Visite enregistrée (avec analyse + questions).");
     });
+
+    function displayAnalysis(analysisArray) {
+      // analysisArray est sensé être un tableau d'objets {title, content}
+      if(!analysisArray || !Array.isArray(analysisArray)) {
+        analysisBox.innerHTML = `<p class="text-sm text-gray-500 italic">Aucune analyse exploitable</p>`;
+        return;
+      }
+      let html = "";
+      analysisArray.forEach(item => {
+        html += `
+          <div class="analysis-item">
+            <div class="analysis-item-title">${item.title}</div>
+            <div class="analysis-item-content">${item.content}</div>
+          </div>
+        `;
+      });
+      analysisBox.innerHTML = html;
+    }
+
+    function displayQuestions(questionsArray) {
+      // questionsArray est un tableau de chaînes
+      if(!questionsArray || !Array.isArray(questionsArray) || questionsArray.length === 0) {
+        questionsBox.innerHTML = `<p class="text-sm text-gray-500 italic">Pas de questions spécifiques</p>`;
+        return;
+      }
+      let html = "<ul class='list-disc list-inside'>";
+      questionsArray.forEach(q => {
+        html += `<li class="mb-2">${q}</li>`;
+      });
+      html += "</ul>";
+      questionsBox.innerHTML = html;
+    }
+
   });
   </script>
 </body>
