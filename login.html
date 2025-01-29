@@ -1,135 +1,136 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="viewport-fit=cover, width=device-width, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#FFFFFF">
-  <meta name="color-scheme" content="light">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="viewport-fit=cover,width=device-width,maximum-scale=1.0,user-scalable=no" />
+  <meta name="theme-color" content="#FFFFFF" />
+  <meta name="color-scheme" content="light" />
   <title>MedicalDebrief by CVA - Connexion</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
+    rel="stylesheet"
+  />
   <script src="js/storage.js" defer></script>
   <script src="js/auth-manager.js" defer></script>
   <style>
     :root {
-        --brand-light: #37A7C4;
-        --brand-medium: #2C89A0;
-        --brand-dark: #1E5F6E;
-        --pure-white: #FFFFFF;
-        --elevation-1: 0 1px 3px rgba(30,95,110,0.05), 0 1px 2px rgba(30,95,110,0.1);
-        --safe-top: env(safe-area-inset-top,47px);
-        --safe-bottom: env(safe-area-inset-bottom,34px);
+      --brand-light: #37A7C4;
+      --brand-medium: #2C89A0;
+      --brand-dark: #1E5F6E;
     }
     body {
       background: #F5F9FA;
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-      -webkit-font-smoothing: antialiased;
-      padding-top: calc(80px + var(--safe-top));
-      padding-bottom: calc(20px + var(--safe-bottom));
+      font-family: -apple-system,BlinkMacSystemFont,sans-serif;
+      padding-top: 80px;
+      padding-bottom: 20px;
     }
-    .nav-blur {
-      background: rgba(255,255,255,0.85);
-      backdrop-filter: saturate(180%) blur(20px);
-      border-bottom: 1px solid rgba(55,167,196,0.1);
-    }
+    /* Material-like modifications */
     .ios-input {
-        background: rgba(255,255,255,0.8);
-        border: 1px solid rgba(55,167,196,0.2);
-        border-radius: 12px;
-        padding: 12px 16px;
-        font-size: 16px;
-        width: 100%;
-        margin-bottom: 10px;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(55, 167, 196, 0.1);
+      border-radius: 14px;
+      padding: 16px 20px;
+      font-size: 17px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow:
+        0 2px 6px rgba(55,167,196,0.05),
+        inset 0 1px 2px rgba(255,255,255,0.1);
+    }
+    .ios-input:focus {
+      border-color: var(--brand-light);
+      box-shadow:
+        0 0 0 3px rgba(55,167,196,0.15),
+        inset 0 1px 2px rgba(255,255,255,0.2);
+      transform: scale(1.02);
     }
     .app-button {
-        background: linear-gradient(135deg, var(--brand-light), var(--brand-medium));
-        border-radius: 12px;
-        padding: 12px 24px;
-        color: white;
-        font-weight: 600;
-        box-shadow: var(--elevation-1);
-        transition: all 0.3s ease;
-        display: inline-block;
-        text-align: center;
-        width: 100%;
+      background: linear-gradient(135deg, var(--brand-light), var(--brand-medium));
+      border-radius: 14px;
+      padding: 18px;
+      font-size: 17px;
+      font-weight: 600;
+      color: white;
+      display: inline-block;
+      width: 100%;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+      margin-top: 8px;
+    }
+    .app-button::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .app-button:hover::after {
+      opacity: 1;
     }
     .app-button:active {
-        transform: scale(0.98);
+      transform: scale(0.97);
     }
   </style>
 </head>
 <body>
-    <nav class="nav-blur fixed w-full z-50 top-0 left-0 right-0">
-        <div class="max-w-5xl mx-auto px-6">
-            <div class="flex items-center justify-between h-[calc(44px+var(--safe-top))] pt-[var(--safe-top)]">
-                <a href="index.html" class="text-[var(--brand-dark)] font-semibold">
-                  ← Accueil
-                </a>
-                <span class="font-bold">
-                  MedicalDebrief by CVA
-                </span>
-                <div></div><!-- Espace pour alignement -->
-            </div>
-        </div>
-    </nav>
+  <main class="max-w-sm mx-auto mt-16 px-4">
+    <h1 class="text-2xl font-bold mb-6 text-[var(--brand-dark)] text-center">
+      Connexion - MedicalDebrief by CVA
+    </h1>
+    <div>
+      <input type="text" id="emailInput" placeholder="Email" class="ios-input">
+      <input type="password" id="passwordInput" placeholder="Mot de passe" class="ios-input">
+      <button id="loginBtn" class="app-button mt-4">Se connecter</button>
+      <button id="signupBtn" class="app-button" style="background:#2C89A0;">
+        Créer un compte
+      </button>
+    </div>
+    <p id="errorMsg" class="mt-3 text-red-500 text-center" style="display:none;"></p>
+  </main>
 
-    <main class="max-w-sm mx-auto mt-16 px-4">
-        <h1 class="text-2xl font-bold mb-6 text-[var(--brand-dark)] text-center">
-            Connexion Sales Rep
-        </h1>
-        <div>
-            <input type="text" id="emailInput" placeholder="Email" class="ios-input">
-            <input type="password" id="passwordInput" placeholder="Mot de passe" class="ios-input">
-            <button id="loginBtn" class="app-button mt-4">Se connecter</button>
-            <button id="signupBtn" class="app-button mt-2" style="background: #2C89A0;">
-                Créer un compte
-            </button>
-        </div>
-        <p id="errorMsg" class="mt-3 text-red-500 text-center" style="display:none;"></p>
-    </main>
+  <footer class="text-center pt-4 mt-8">
+    <p class="text-[var(--brand-dark)] opacity-60 text-sm">
+      © 2025 MedicalDebrief by CVA
+    </p>
+  </footer>
 
-    <footer class="text-center pt-4 pb-[calc(20px+var(--safe-bottom))] mt-8">
-        <p class="text-[var(--brand-dark)] opacity-60 text-sm">
-            © 2025 MedicalDebrief by CVA
-        </p>
-    </footer>
+  <script>
+  document.addEventListener('DOMContentLoaded', ()=>{
+    const emailInput = document.getElementById('emailInput');
+    const passwordInput = document.getElementById('passwordInput');
+    const loginBtn = document.getElementById('loginBtn');
+    const signupBtn = document.getElementById('signupBtn');
+    const errorMsg = document.getElementById('errorMsg');
 
-    <script>
-    document.addEventListener('DOMContentLoaded', ()=>{
-        const emailInput = document.getElementById('emailInput');
-        const passwordInput = document.getElementById('passwordInput');
-        const loginBtn = document.getElementById('loginBtn');
-        const signupBtn = document.getElementById('signupBtn');
-        const errorMsg = document.getElementById('errorMsg');
+    const authManager = new AuthManager();
 
-        const authManager = new AuthManager();
-
-        loginBtn.addEventListener('click', ()=>{
-            const email = emailInput.value.trim();
-            const pass = passwordInput.value.trim();
-            const success = authManager.loginUser(email, pass);
-            if(!success) {
-                errorMsg.style.display = 'block';
-                errorMsg.textContent = "Identifiants invalides ou compte inexistant.";
-            } else {
-                // Rediriger
-                window.location.href = "debrief.html";
-            }
-        });
-
-        signupBtn.addEventListener('click', ()=>{
-            const email = emailInput.value.trim();
-            const pass = passwordInput.value.trim();
-            const success = authManager.createUser(email, pass);
-            if(!success) {
-                errorMsg.style.display = 'block';
-                errorMsg.textContent = "Impossible de créer le compte (email déjà utilisé ?).";
-            } else {
-                errorMsg.style.display = 'none';
-                alert("Compte créé avec succès, vous êtes connecté !");
-                window.location.href = "debrief.html";
-            }
-        });
+    loginBtn.addEventListener('click', ()=>{
+      const email = emailInput.value.trim();
+      const pass = passwordInput.value.trim();
+      const success = authManager.loginUser(email, pass);
+      if(!success) {
+        errorMsg.style.display = 'block';
+        errorMsg.textContent = "Identifiants invalides ou compte inexistant.";
+      } else {
+        window.location.href = "debrief.html";
+      }
     });
-    </script>
+
+    signupBtn.addEventListener('click', ()=>{
+      const email = emailInput.value.trim();
+      const pass = passwordInput.value.trim();
+      const success = authManager.createUser(email, pass);
+      if(!success) {
+        errorMsg.style.display = 'block';
+        errorMsg.textContent = "Compte déjà existant ou identifiants invalides.";
+      } else {
+        alert("Compte créé, vous êtes connecté !");
+        window.location.href = "debrief.html";
+      }
+    });
+  });
+  </script>
 </body>
 </html>
