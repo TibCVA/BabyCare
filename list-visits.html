@@ -1,117 +1,64 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="viewport-fit=cover, width=device-width, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#FFFFFF">
-    <meta name="color-scheme" content="light">
-    <title>MedicalDebrief by CVA - Liste des visites</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
-    <script src="js/storage.js" defer></script>
-    <script src="js/auth-manager.js" defer></script>
-    <script src="js/visits-manager.js" defer></script>
-    <style>
-        :root {
-            --brand-light: #37A7C4;
-            --brand-medium: #2C89A0;
-            --brand-dark: #1E5F6E;
-            --elevation-1: 0 1px 3px rgba(30,95,110,0.05), 0 1px 2px rgba(30,95,110,0.1);
-            --safe-top: env(safe-area-inset-top,47px);
-            --safe-bottom: env(safe-area-inset-bottom,34px);
-        }
-        body {
-            background: #F5F9FA;
-            font-family: -apple-system,BlinkMacSystemFont,sans-serif;
-            -webkit-font-smoothing: antialiased;
-            padding-top: calc(80px + var(--safe-top));
-            padding-bottom: calc(20px + var(--safe-bottom));
-        }
-        .nav-blur {
-            background: rgba(255,255,255,0.85);
-            backdrop-filter: saturate(180%) blur(20px);
-            border-bottom: 1px solid rgba(55,167,196,0.1);
-        }
-        .visit-card {
-            background: white;
-            border-radius: 14px;
-            padding: 16px;
-            margin-bottom: 12px;
-            box-shadow: var(--elevation-1);
-            border:1px solid rgba(55,167,196,0.1);
-        }
-        .visit-card h3 {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--brand-dark);
-        }
-        .visit-card p {
-            font-size: 14px;
-            color: var(--brand-dark);
-            opacity: 0.8;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="viewport-fit=cover, width=device-width, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#FFFFFF">
+  <meta name="color-scheme" content="light">
+  <title>MedicalDebrief by CVA - Mes visites</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  <script src="js/storage.js" defer></script>
+  <script src="js/auth-manager.js" defer></script>
+  <script src="js/visits-manager.js" defer></script>
 </head>
-<body>
-    <nav class="nav-blur fixed w-full z-50 top-0 left-0 right-0">
-        <div class="max-w-5xl mx-auto px-6">
-            <div class="flex items-center justify-between h-[calc(44px+var(--safe-top))] pt-[var(--safe-top)]">
-                <a href="debrief.html" class="text-[var(--brand-dark)]">← Retour</a>
-                <span class="font-bold">Mes visites</span>
-                <div></div>
-            </div>
-        </div>
-    </nav>
+<body class="bg-[#F5F9FA] min-h-screen">
+  <nav class="fixed top-0 w-full bg-white shadow-sm flex items-center justify-between p-4">
+    <a href="debrief.html" class="text-[var(--brand-dark)]">← Retour</a>
+    <span class="font-bold">Mes visites</span>
+    <div></div>
+  </nav>
+  <main class="pt-16 px-4 max-w-xl mx-auto">
+    <h1 class="text-2xl font-bold mb-4 text-[var(--brand-dark)]">Historique</h1>
+    <div id="visitsContainer"></div>
+  </main>
+  <footer class="text-center pt-4 mt-8">
+    <p class="text-[var(--brand-dark)] opacity-60 text-sm">
+      © 2025 MedicalDebrief by CVA
+    </p>
+  </footer>
 
-    <main class="max-w-xl mx-auto mt-8 px-4">
-        <h1 class="text-2xl font-bold mb-4 text-[var(--brand-dark)]">Historique des visites</h1>
-        <div id="visitsContainer"></div>
-    </main>
+  <script>
+  document.addEventListener('DOMContentLoaded', ()=>{
+    const auth = new AuthManager();
+    const user = auth.getCurrentUser();
+    if(!user) {
+      window.location.href = "login.html";
+    }
 
-    <footer class="text-center pt-4 pb-[calc(20px+var(--safe-bottom))] mt-8">
-        <p class="text-[var(--brand-dark)] opacity-60 text-sm">
-            © 2025 MedicalDebrief by CVA
-        </p>
-    </footer>
+    const visitsManager = new VisitsManager();
+    const visitsContainer = document.getElementById('visitsContainer');
 
-    <script>
-    document.addEventListener('DOMContentLoaded', ()=>{
-        const auth = new AuthManager();
-        const visitsManager = new VisitsManager();
-        const currentUser = auth.getCurrentUser();
-        if(!currentUser) {
-            window.location.href = "login.html";
-        }
+    const allVisits = visitsManager.loadVisits();
+    const myVisits = allVisits.filter(v => v.user === user);
 
-        const visitsContainer = document.getElementById('visitsContainer');
-        const visits = visitsManager.loadVisits();
-        // Filtrer sur l'utilisateur connecté
-        const myVisits = visits.filter(v => v.user === currentUser);
-        
-        if(myVisits.length === 0) {
-            visitsContainer.innerHTML = "<p class='text-sm text-gray-500'>Aucun débrief enregistré pour vous.</p>";
-            return;
-        }
-        // Sinon, on affiche
-        myVisits.forEach(visit => {
-            const card = document.createElement('div');
-            card.className = "visit-card";
+    if(myVisits.length === 0) {
+      visitsContainer.innerHTML = "<p class='text-gray-500'>Aucune visite enregistrée.</p>";
+      return;
+    }
 
-            card.innerHTML = `
-                <h3>${visit.doctor} - ${visit.date}</h3>
-                <p class="mt-1">
-                    Fluidité: ${visit.fluidity}/10
-                </p>
-                <p class="mt-1 text-xs">
-                    Créé le: ${new Date(visit.createdAt).toLocaleString()}
-                </p>
-                <hr class="my-2"/>
-                <p class="text-sm">Notes: ${visit.notes}</p>
-                <hr class="my-2"/>
-                <p class="text-sm"><strong>Synthèse:</strong> ${visit.summary}</p>
-            `;
-            visitsContainer.appendChild(card);
-        });
+    myVisits.forEach(visit => {
+      const div = document.createElement('div');
+      div.className = "bg-white p-4 rounded-lg mb-4 shadow-sm";
+
+      div.innerHTML = `
+        <h2 class="font-bold text-[var(--brand-dark)] mb-1">${visit.doctor} - ${visit.date}</h2>
+        <p class="text-sm mb-2">Notes : ${visit.notes}</p>
+        <pre class="text-xs bg-gray-100 p-2 rounded">${visit.summary || '(pas de synthèse)'}</pre>
+        <p class="text-xs mt-2 text-gray-400">Enregistré le ${new Date(visit.createdAt).toLocaleString()}</p>
+      `;
+      visitsContainer.appendChild(div);
     });
-    </script>
+  });
+  </script>
 </body>
 </html>
