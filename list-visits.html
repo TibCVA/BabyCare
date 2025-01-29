@@ -17,60 +17,72 @@
     :root {
       --brand-dark: #1E5F6E;
       --brand-light: #37A7C4;
+      --blue-bg-2: #e1f4f8;
     }
     body {
       background: #F5F9FA;
       font-family: -apple-system,BlinkMacSystemFont,sans-serif;
-      padding-top: 80px;
+      padding-top: 60px;
       padding-bottom: 20px;
+    }
+    nav {
+      background: #fff;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
     .visit-card {
       background: white;
       border-radius: 14px;
-      padding: 16px;
+      padding: 14px;
       margin-bottom: 12px;
       box-shadow: 0 1px 3px rgba(30,95,110,0.05), 0 1px 2px rgba(30,95,110,0.1);
       border: 1px solid rgba(55,167,196,0.1);
     }
-    .break-words {
+    .visit-card h2 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--brand-dark);
+      margin-bottom: 3px;
+    }
+    .visit-card p {
+      font-size: 14px;
+      color: #333;
+      margin-bottom: 6px;
       white-space: pre-wrap;
       word-wrap: break-word;
       overflow-wrap: break-word;
     }
-    .analysis-item {
-      margin-bottom: 8px;
+    .final-summary-block {
+      background: var(--blue-bg-2);
+      border: 1px solid #b5e2ec;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 6px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
-    .analysis-item-title {
-      font-weight: 600;
+    .final-summary-block h3 {
+      margin: 0 0 5px 0;
+      font-size: 15px;
+      font-weight: 700;
       color: var(--brand-dark);
-    }
-    .analysis-item-content {
-      font-size: 14px;
-      color: var(--brand-dark);
-      opacity: 0.9;
-    }
-    .questions-list {
-      margin-left: 1.3rem;
-      list-style: disc;
-      margin-top: 4px;
-      margin-bottom: 4px;
     }
   </style>
 </head>
 <body>
   <!-- Barre de nav -->
-  <nav class="fixed top-0 w-full bg-white shadow-sm flex items-center justify-between p-4">
-    <a href="debrief.html" class="text-[var(--brand-dark)]">← Retour</a>
+  <nav class="fixed top-0 w-full flex items-center justify-between px-4 py-3">
+    <a href="debrief.html" class="text-[var(--brand-dark)] text-sm font-medium">← Retour</a>
     <span class="font-bold">Mes visites</span>
     <div></div>
   </nav>
 
   <main class="pt-16 px-4 max-w-xl mx-auto">
-    <h1 class="text-2xl font-bold mb-4 text-[var(--brand-dark)]">Historique</h1>
+    <h1 class="text-xl font-bold mb-4 text-[var(--brand-dark)]">Historique</h1>
     <div id="visitsContainer"></div>
   </main>
 
-  <footer class="text-center pt-4 mt-8">
+  <footer class="text-center pt-2 mt-4 mb-2">
     <p class="text-[var(--brand-dark)] opacity-60 text-sm">
       © 2025 MedicalDebrief by CVA
     </p>
@@ -91,7 +103,7 @@
     const myVisits = allVisits.filter(v => v.user === user);
 
     if(myVisits.length === 0) {
-      visitsContainer.innerHTML = "<p class='text-gray-500'>Aucune visite enregistrée.</p>";
+      visitsContainer.innerHTML = "<p class='text-gray-500 text-sm'>Aucune visite enregistrée.</p>";
       return;
     }
 
@@ -99,113 +111,35 @@
       const card = document.createElement('div');
       card.className = "visit-card";
 
-      const docName = visit.doctor || "(Inconnu)";
-      const visitDate = visit.date || "";
+      const docName = visit.doctor || "(Contact inconnu)";
+      const visitDate = visit.date || "(Date non spécifiée)";
       const notes = visit.notes || "";
-      const answers = visit.answers || "";
       const finalSummary = visit.finalSummary || "";
       const createdAt = new Date(visit.createdAt).toLocaleString();
 
-      let analysisHTML = "";
-      let questionsHTML = "";
-
-      // parse analysis
-      if (visit.analysis) {
-        try {
-          const arr = JSON.parse(visit.analysis);
-          analysisHTML = formatAnalysis(arr);
-        } catch (err) {
-          analysisHTML = `<pre class="break-words text-sm bg-gray-100 p-2 rounded">${visit.analysis}</pre>`;
-        }
-      }
-      // parse questions
-      if (visit.questions) {
-        try {
-          const qArr = JSON.parse(visit.questions);
-          questionsHTML = formatQuestions(qArr);
-        } catch (err) {
-          questionsHTML = `<pre class="break-words text-sm bg-gray-100 p-2 rounded">${visit.questions}</pre>`;
-        }
-      }
-
       let html = `
-        <h2 class="font-bold text-[var(--brand-dark)] mb-1 break-words">${docName} - ${visitDate}</h2>
-        <p class="text-sm mb-2 break-words">Notes : ${notes}</p>
+        <h2>${docName} - ${visitDate}</h2>
+        <p>Notes : ${notes}</p>
       `;
-
-      if(analysisHTML) {
-        html += `
-          <div class="mt-2 break-words">
-            <strong>Analyse IA :</strong>
-            ${analysisHTML}
-          </div>
-        `;
-      }
-      if(questionsHTML) {
-        html += `
-          <div class="mt-2 break-words">
-            <strong>Questions IA :</strong>
-            ${questionsHTML}
-          </div>
-        `;
-      }
-      if(answers) {
-        html += `
-          <div class="mt-2 break-words">
-            <strong>Réponses :</strong>
-            <div class="break-words text-sm mt-1">${answers}</div>
-          </div>
-        `;
-      }
+      // On n'affiche QUE la finalSummary
       if(finalSummary) {
         html += `
-          <div class="mt-2 break-words">
-            <strong>Synthèse Finale :</strong>
-            <pre class="break-words text-sm bg-gray-50 p-2 mt-1 rounded">${finalSummary}</pre>
+          <div class="final-summary-block mt-2">
+            <h3>Synthèse Finale :</h3>
+            <p>${finalSummary}</p>
           </div>
         `;
+      } else {
+        html += `<p class="text-sm text-gray-500 italic">Aucune synthèse finale disponible.</p>`;
       }
 
       html += `
-        <p class="text-xs mt-3 text-gray-400">Enregistré le ${createdAt}</p>
+        <p class="text-xs mt-2 text-gray-400">Enregistré le ${createdAt}</p>
       `;
 
       card.innerHTML = html;
       visitsContainer.appendChild(card);
     });
-
-    // Helpers
-    function formatAnalysis(analysisArr) {
-      if(!Array.isArray(analysisArr)) {
-        return `<pre class="break-words text-sm bg-gray-100 p-2 rounded">
-          ${JSON.stringify(analysisArr, null, 2)}
-        </pre>`;
-      }
-      let html = "<div class='mt-1 text-sm'>";
-      analysisArr.forEach(item => {
-        html += `
-          <div class="analysis-item">
-            <div class="analysis-item-title">${item.title}</div>
-            <div class="analysis-item-content">${item.content}</div>
-          </div>
-        `;
-      });
-      html += "</div>";
-      return html;
-    }
-    function formatQuestions(qArr) {
-      if(!Array.isArray(qArr)) {
-        return `<pre class="break-words text-sm bg-gray-100 p-2 rounded">
-          ${JSON.stringify(qArr, null, 2)}
-        </pre>`;
-      }
-      let html = "<ul class='questions-list'>";
-      qArr.forEach(q => {
-        html += `<li>${q}</li>`;
-      });
-      html += "</ul>";
-      return html;
-    }
   });
   </script>
 </body>
