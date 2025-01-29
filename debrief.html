@@ -6,135 +6,120 @@
   <meta name="theme-color" content="#FFFFFF" />
   <meta name="color-scheme" content="light" />
   <title>MedicalDebrief by CVA - Débrief</title>
-
   <link
     href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
     rel="stylesheet"
   />
-
   <script src="js/storage.js" defer></script>
   <script src="js/auth-manager.js" defer></script>
   <script src="js/visits-manager.js" defer></script>
-
   <style>
     :root {
       --brand-light: #37A7C4;
       --brand-medium: #2C89A0;
       --brand-dark: #1E5F6E;
+      --blue-bg: #ECF8FA;
     }
-
-    /* Nouveau design iOS-like */
     body {
-      background: #f8fafc;
+      background: #F5F9FA;
       font-family: -apple-system,BlinkMacSystemFont,sans-serif;
       padding-top: 80px;
       padding-bottom: 20px;
     }
-
     .form-section {
-      background: rgba(255, 255, 255, 0.9);
-      border-radius: 20px;
-      padding: 24px;
-      margin-bottom: 20px;
-      box-shadow: 0 8px 32px rgba(30, 95, 110, 0.1);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      transform: translateY(0);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
-    .form-section:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 40px rgba(30, 95, 110, 0.15);
-    }
-
     .ios-input {
-      background: rgba(255, 255, 255, 0.9);
-      border: 1px solid rgba(55, 167, 196, 0.15);
-      border-radius: 12px;
-      padding: 14px 18px;
-      font-size: 16px;
-      transition: all 0.2s ease;
-      box-shadow: 0 2px 6px rgba(55, 167, 196, 0.05);
+      background: rgba(255,255,255,0.8);
+      border: 1px solid rgba(55,167,196,0.2);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 15px;
       width: 100%;
       margin-bottom: 6px;
+      transition: all 0.3s ease;
     }
-    .ios-input:focus {
-      border-color: var(--brand-light);
-      box-shadow: 0 0 0 3px rgba(55, 167, 196, 0.15);
+    .app-button {
+      background: linear-gradient(135deg, var(--brand-light), var(--brand-medium));
+      border-radius: 10px;
+      padding: 10px 18px;
+      color: white;
+      font-weight: 600;
+      display: inline-block;
+      text-align: center;
+      transition: transform 0.2s;
+    }
+    .app-button:active {
+      transform: scale(0.97);
     }
 
-    /* Animation des cartes IA */
-    @keyframes floatIn {
-      0% { opacity: 0; transform: translateY(10px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
+    /* Section d'analyse + questions */
     .analysis-box,
-    .questions-box,
-    .final-box {
-      animation: floatIn 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-      background: linear-gradient(145deg, #ffffff, #f0f9fb);
-      border: 1px solid rgba(55, 167, 196, 0.1);
-      box-shadow: 0 4px 24px rgba(55, 167, 196, 0.08);
-      position: relative;
-      overflow: hidden;
+    .questions-box {
+      background: var(--blue-bg);
+      border-radius: 10px;
       padding: 14px;
       margin-top: 10px;
-      border-radius: 14px;
+      border: 1px solid rgba(55,167,196,0.2);
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
-    .analysis-box::before,
-    .questions-box::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, var(--brand-light), var(--brand-dark));
-      opacity: 0.1;
+    .analysis-item {
+      margin-bottom: 8px;
+    }
+    .analysis-item-title {
+      font-weight: 600;
+      color: var(--brand-dark);
+      margin-bottom: 3px;
+    }
+    .analysis-item-content {
+      font-size: 14px;
+      color: #333;
+    }
+    .questions-box ol {
+      margin-left: 1.3rem;
+      margin-top: 6px;
+      margin-bottom: 6px;
+    }
+    .questions-box ol li {
+      margin-bottom: 8px; /* espace questions */
     }
 
-    /* Nouveau spinner moderne */
+    /* Zone de synthèse finale */
+    .final-box {
+      background: #daf2f6;
+      border: 1px solid #b5e2ec;
+      border-radius: 10px;
+      padding: 14px;
+      margin-top: 10px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
+    /* Spinner de chargement */
+    .loading-overlay {
+      display: none;
+      text-align: center;
+      margin-top: 10px;
+    }
     .loading-ring {
-      width: 48px;
-      height: 48px;
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(55,167,196,0.2);
+      border-left-color: var(--brand-light);
       border-radius: 50%;
-      border: 3px solid rgba(55, 167, 196, 0.1);
-      border-top-color: var(--brand-light);
       animation: spin 1s linear infinite;
-      position: relative;
       margin: 0 auto 6px auto;
     }
-    .loading-ring::after {
-      content: '';
-      position: absolute;
-      top: -3px; left: -3px; right: -3px; bottom: -3px;
-      border-radius: 50%;
-      border: 3px solid transparent;
-      border-bottom-color: var(--brand-dark);
-      animation: spinReverse 0.8s linear infinite;
-    }
     @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    @keyframes spinReverse {
-      to { transform: rotate(-360deg); }
-    }
-
-    /* IA response effet de live text */
-    .ai-response {
-      position: relative;
-      padding-left: 32px;
-    }
-    .ai-response::before {
-      content: '✦';
-      position: absolute;
-      left: 0;
-      top: 2px;
-      color: var(--brand-light);
-      font-size: 24px;
-      animation: sparkle 1.5s infinite;
-    }
-    @keyframes sparkle {
-      0%, 100% { opacity: 0.8; transform: scale(1); }
-      50% { opacity: 1; transform: scale(1.1); }
+      0% {transform: rotate(0deg);}
+      100% {transform: rotate(360deg);}
     }
   </style>
 </head>
@@ -177,26 +162,21 @@
       <input type="date" id="dateInput" class="ios-input" />
 
       <label class="block mb-1 text-sm text-[var(--brand-dark)] mt-2">Compte-rendu initial</label>
-      <textarea id="notesInput" class="ios-input h-20 resize-none" placeholder="Décrivez l'échange..."></textarea>
+      <textarea id="notesInput" class="ios-input h-24 resize-none" placeholder="Décrivez l'échange..."></textarea>
 
       <button id="analyzeBtn" class="app-button w-full mt-3">
         Analyser (IA)
       </button>
 
       <!-- Spinner étape 1 -->
-      <div id="loadingStep1" class="text-center hidden mt-4">
+      <div id="loadingStep1" class="loading-overlay">
         <div class="loading-ring"></div>
         <p class="text-[var(--brand-dark)] text-sm">Analyse en cours...</p>
       </div>
 
       <!-- Analyse + Questions -->
-      <div id="analysisBox" class="analysis-box" style="display:none;">
-        <div class="ai-response" id="analysisResponse"></div>
-      </div>
-
-      <div id="questionsBox" class="questions-box" style="display:none;">
-        <ol id="questionsList" class="ml-4 text-sm"></ol>
-      </div>
+      <div id="analysisBox" class="analysis-box" style="display:none;"></div>
+      <div id="questionsBox" class="questions-box" style="display:none;"></div>
     </div>
 
     <!-- ÉTAPE 2 -->
@@ -215,22 +195,12 @@
       </button>
 
       <!-- Spinner étape 2 -->
-      <div id="loadingStep2" class="text-center hidden mt-4">
+      <div id="loadingStep2" class="loading-overlay">
         <div class="loading-ring"></div>
         <p class="text-[var(--brand-dark)] text-sm">Génération de la synthèse...</p>
       </div>
 
-      <div id="finalBox" class="final-box" style="display:none;">
-        <div class="ai-response" id="finalResponse"></div>
-        <div class="mt-4 flex items-center space-x-3 border-t border-[rgba(55,167,196,0.1)] pt-3">
-          <button onclick="copyToClipboard()" class="text-[var(--brand-dark)] hover:opacity-80 transition-opacity">
-            📋 Copier
-          </button>
-          <button onclick="shareContent()" class="text-[var(--brand-dark)] hover:opacity-80 transition-opacity">
-            ↗️ Partager
-          </button>
-        </div>
-      </div>
+      <div id="finalBox" class="final-box" style="display:none;"></div>
 
       <button id="saveBtn" class="app-button w-full mt-3" style="background:#2C89A0;">
         Enregistrer en local
@@ -253,7 +223,7 @@
     }
     const visitsManager = new VisitsManager();
 
-    // Éléments
+    // Sélecteurs
     const visitTypeSelect = document.getElementById('visitTypeSelect');
     const contactTypeSelect = document.getElementById('contactTypeSelect');
     const doctorInput = document.getElementById('doctorInput');
@@ -261,9 +231,7 @@
     const notesInput = document.getElementById('notesInput');
     const analyzeBtn = document.getElementById('analyzeBtn');
     const analysisBox = document.getElementById('analysisBox');
-    const analysisResponse = document.getElementById('analysisResponse');
     const questionsBox = document.getElementById('questionsBox');
-    const questionsList = document.getElementById('questionsList');
     const loadingStep1 = document.getElementById('loadingStep1');
 
     const step2Section = document.getElementById('step2Section');
@@ -271,7 +239,6 @@
     const finalSynthesisBtn = document.getElementById('finalSynthesisBtn');
     const loadingStep2 = document.getElementById('loadingStep2');
     const finalBox = document.getElementById('finalBox');
-    const finalResponse = document.getElementById('finalResponse');
     const saveBtn = document.getElementById('saveBtn');
 
     // Worker URL
@@ -281,7 +248,7 @@
     let currentQuestions = [];
     let finalSummary = "";
 
-    // Étape 1: analysis
+    // ÉTAPE 1: analysis
     analyzeBtn.addEventListener('click', async () => {
       const visitType = visitTypeSelect.value;
       const contactType = contactTypeSelect.value;
@@ -290,12 +257,13 @@
       const notes = notesInput.value.trim();
 
       if(!docName || !visitDate || !notes) {
-        alert("Veuillez renseigner contact, date et compte-rendu.");
+        alert("Veuillez remplir au moins le contact, la date et le compte-rendu initial.");
         return;
       }
 
       // Afficher le spinner
-      loadingStep1.classList.remove('hidden');
+      loadingStep1.style.display = "block";
+      // Masquer éventuellement l'analyse précédente
       analysisBox.style.display = "none";
       questionsBox.style.display = "none";
 
@@ -317,27 +285,30 @@
         });
         const result = await resp.json();
 
-        loadingStep1.classList.add('hidden');
+        // Cacher le spinner
+        loadingStep1.style.display = "none";
 
         if(result.error) {
           alert("Erreur IA: " + result.error);
           return;
         }
+        // {analysis, questions}
         currentAnalysis = result.analysis || [];
         currentQuestions = result.questions || [];
 
         showAnalysis(currentAnalysis);
         showQuestions(currentQuestions);
+
         step2Section.style.display = "block";
 
       } catch(e) {
-        loadingStep1.classList.add('hidden');
+        loadingStep1.style.display = "none";
         console.error(e);
         alert("Erreur: " + e.message);
       }
     });
 
-    // Étape 2: final_synthesis
+    // ÉTAPE 2: final_synthesis
     finalSynthesisBtn.addEventListener('click', async () => {
       const visitType = visitTypeSelect.value;
       const contactType = contactTypeSelect.value;
@@ -346,7 +317,8 @@
       const notes = notesInput.value.trim();
       const userAnswers = answersInput.value.trim();
 
-      loadingStep2.classList.remove('hidden');
+      // Afficher le spinner
+      loadingStep2.style.display = "block";
       finalBox.style.display = "none";
 
       const bodyReq = {
@@ -370,24 +342,25 @@
         });
         const result = await resp.json();
 
-        loadingStep2.classList.add('hidden');
+        // Cacher le spinner
+        loadingStep2.style.display = "none";
 
         if(result.error) {
           alert("Erreur IA: " + result.error);
           return;
         }
         finalSummary = result.finalSummary || "(Pas de synthèse)";
-        finalResponse.textContent = finalSummary; 
-        finalBox.style.display = "block";
 
+        finalBox.style.display = "block";
+        finalBox.textContent = finalSummary;
       } catch(e) {
-        loadingStep2.classList.add('hidden');
+        loadingStep2.style.display = "none";
         console.error(e);
         alert("Erreur: " + e.message);
       }
     });
 
-    // Enregistrement local
+    // ENREGISTRER
     saveBtn.addEventListener('click', () => {
       const visitType = visitTypeSelect.value;
       const contactType = contactTypeSelect.value;
@@ -416,54 +389,38 @@
     // Helpers
     function showAnalysis(arr) {
       if(!arr.length) {
-        analysisResponse.textContent = "(Analyse vide)";
+        analysisBox.textContent = "(Analyse vide)";
         analysisBox.style.display = "block";
         return;
       }
-      let text = "";
+      let html = "";
       arr.forEach(item => {
-        text += `${item.title}: ${item.content}\n\n`;
+        html += `
+          <div class="analysis-item">
+            <div class="analysis-item-title">${item.title}</div>
+            <div class="analysis-item-content">${item.content}</div>
+          </div>
+        `;
       });
-      analysisResponse.textContent = text.trim();
+      analysisBox.innerHTML = html;
       analysisBox.style.display = "block";
     }
 
     function showQuestions(qArr) {
       if(!qArr.length) {
+        questionsBox.textContent = "(Aucune question)";
         questionsBox.style.display = "block";
-        questionsList.innerHTML = "<li>(Aucune question)</li>";
         return;
       }
-      questionsList.innerHTML = "";
+      let html = "<ol>";
       qArr.forEach(q => {
-        const li = document.createElement('li');
-        li.textContent = q;
-        questionsList.appendChild(li);
+        html += `<li>${q}</li>`;
       });
+      html += "</ol>";
+      questionsBox.innerHTML = html;
       questionsBox.style.display = "block";
     }
   });
-
-  // Bouton "Copier" pour la synthèse
-  function copyToClipboard() {
-    const text = document.getElementById('finalResponse')?.textContent || '';
-    navigator.clipboard.writeText(text).then(() => {
-      alert("Synthèse copiée !");
-    }, () => {
-      alert("Échec de la copie.");
-    });
-  }
-
-  // Bouton "Partager"
-  function shareContent() {
-    const text = document.getElementById('finalResponse')?.textContent || '';
-    if(navigator.share) {
-      navigator.share({ text })
-        .catch(err => console.log('Partage annulé', err));
-    } else {
-      alert("API de partage non supportée sur ce navigateur.");
-    }
-  }
   </script>
 </body>
 </html>
