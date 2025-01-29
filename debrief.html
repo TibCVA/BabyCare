@@ -10,7 +10,6 @@
     href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
     rel="stylesheet"
   />
-  <!-- JS managers -->
   <script src="js/storage.js" defer></script>
   <script src="js/auth-manager.js" defer></script>
   <script src="js/visits-manager.js" defer></script>
@@ -19,6 +18,7 @@
       --brand-light: #37A7C4;
       --brand-medium: #2C89A0;
       --brand-dark: #1E5F6E;
+      --blue-bg: #ECF8FA;
     }
     body {
       background: #F5F9FA;
@@ -28,24 +28,25 @@
     }
     .form-section {
       background: white;
-      border-radius: 20px;
-      padding: 24px;
-      margin-bottom: 16px;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
     .ios-input {
       background: rgba(255,255,255,0.8);
       border: 1px solid rgba(55,167,196,0.2);
-      border-radius: 12px;
-      padding: 12px 16px;
-      font-size: 16px;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 15px;
       width: 100%;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       transition: all 0.3s ease;
     }
     .app-button {
       background: linear-gradient(135deg, var(--brand-light), var(--brand-medium));
-      border-radius: 12px;
-      padding: 12px 24px;
+      border-radius: 10px;
+      padding: 10px 18px;
       color: white;
       font-weight: 600;
       display: inline-block;
@@ -55,98 +56,159 @@
     .app-button:active {
       transform: scale(0.97);
     }
-    .analysis-box, .questions-box, .final-box {
-      background: #F9FEFF;
+
+    /* Section d'analyse + questions */
+    .analysis-box,
+    .questions-box {
+      background: var(--blue-bg);
+      border-radius: 10px;
+      padding: 14px;
+      margin-top: 10px;
       border: 1px solid rgba(55,167,196,0.2);
-      border-radius: 12px;
-      padding: 16px;
-      margin-top: 8px;
       white-space: pre-wrap;
       word-wrap: break-word;
       overflow-wrap: break-word;
     }
     .analysis-item {
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
     .analysis-item-title {
       font-weight: 600;
       color: var(--brand-dark);
+      margin-bottom: 3px;
     }
     .analysis-item-content {
       font-size: 14px;
-      color: var(--brand-dark);
-      opacity: 0.9;
+      color: #333;
     }
-    .questions-box ul {
-      list-style: disc;
+    .questions-box ol {
       margin-left: 1.3rem;
+      margin-top: 6px;
+      margin-bottom: 6px;
+    }
+    .questions-box ol li {
+      margin-bottom: 8px; /* espace questions */
+    }
+
+    /* Zone de synthèse finale */
+    .final-box {
+      background: #daf2f6;
+      border: 1px solid #b5e2ec;
+      border-radius: 10px;
+      padding: 14px;
+      margin-top: 10px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
+    /* Spinner de chargement */
+    .loading-overlay {
+      display: none;
+      text-align: center;
+      margin-top: 10px;
+    }
+    .loading-ring {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(55,167,196,0.2);
+      border-left-color: var(--brand-light);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 6px auto;
+    }
+    @keyframes spin {
+      0% {transform: rotate(0deg);}
+      100% {transform: rotate(360deg);}
     }
   </style>
 </head>
 <body>
   <!-- Barre de nav -->
-  <nav class="fixed top-0 w-full bg-white shadow-sm flex items-center justify-between p-4">
-    <a href="login.html" class="text-[var(--brand-dark)]">Déconnexion</a>
+  <nav class="fixed top-0 w-full bg-white shadow-sm flex items-center justify-between p-3">
+    <a href="login.html" class="text-[var(--brand-dark)] font-medium">Déconnexion</a>
     <span class="font-bold">MedicalDebrief by CVA</span>
-    <a href="list-visits.html" class="text-[var(--brand-light)]">Mes visites</a>
+    <a href="list-visits.html" class="text-[var(--brand-light)] font-medium">Mes visites</a>
   </nav>
 
   <main class="max-w-xl mx-auto mt-4 px-4">
     <!-- ÉTAPE 1 -->
     <div class="form-section">
-      <h2 class="text-lg font-semibold text-[var(--brand-dark)] mb-6">
+      <h2 class="text-base font-semibold text-[var(--brand-dark)] mb-4">
         Étape 1 : Informations & Analyse IA
       </h2>
-      <label class="block mb-1 text-sm text-[var(--brand-dark)]">Médecin</label>
+
+      <label class="block mb-1 text-sm text-[var(--brand-dark)]">Type de visite</label>
+      <select id="visitTypeSelect" class="ios-input">
+        <option value="">-- Sélectionnez --</option>
+        <option value="Prospection">Prospection</option>
+        <option value="Suivi">Suivi</option>
+        <option value="Routinière">Routinière</option>
+        <option value="KAM">KAM</option>
+      </select>
+
+      <label class="block mb-1 text-sm text-[var(--brand-dark)] mt-2">Type de contact</label>
+      <select id="contactTypeSelect" class="ios-input">
+        <option value="">-- Sélectionnez --</option>
+        <option value="Médecin">Médecin</option>
+        <option value="Pharmacien">Pharmacien</option>
+        <option value="Autre">Autre</option>
+      </select>
+
+      <label class="block mb-1 text-sm text-[var(--brand-dark)] mt-2">Médecin / Contact</label>
       <input type="text" id="doctorInput" class="ios-input" placeholder="Dr Dupont" />
-      
-      <label class="block mb-1 text-sm text-[var(--brand-dark)] mt-4">Date de visite</label>
+
+      <label class="block mb-1 text-sm text-[var(--brand-dark)] mt-2">Date de visite</label>
       <input type="date" id="dateInput" class="ios-input" />
 
-      <label class="block mb-1 text-sm text-[var(--brand-dark)] mt-4">Compte-rendu initial</label>
-      <textarea
-        class="ios-input h-32 resize-none"
-        id="notesInput"
-        placeholder="Décrivez l'échange..."
-      ></textarea>
+      <label class="block mb-1 text-sm text-[var(--brand-dark)] mt-2">Compte-rendu initial</label>
+      <textarea id="notesInput" class="ios-input h-24 resize-none" placeholder="Décrivez l'échange..."></textarea>
 
-      <button id="analyzeBtn" class="app-button w-full mt-4">
+      <button id="analyzeBtn" class="app-button w-full mt-3">
         Analyser (IA)
       </button>
 
+      <!-- Spinner étape 1 -->
+      <div id="loadingStep1" class="loading-overlay">
+        <div class="loading-ring"></div>
+        <p class="text-[var(--brand-dark)] text-sm">Analyse en cours...</p>
+      </div>
+
       <!-- Analyse + Questions -->
-      <div id="analysisBox" class="analysis-box mt-6" style="display:none;"></div>
-      <div id="questionsBox" class="questions-box mt-4" style="display:none;"></div>
+      <div id="analysisBox" class="analysis-box" style="display:none;"></div>
+      <div id="questionsBox" class="questions-box" style="display:none;"></div>
     </div>
 
     <!-- ÉTAPE 2 -->
     <div class="form-section" id="step2Section" style="display:none;">
-      <h2 class="text-lg font-semibold text-[var(--brand-dark)] mb-2">
+      <h2 class="text-base font-semibold text-[var(--brand-dark)] mb-2">
         Étape 2 : Réponses & Synthèse finale
       </h2>
-      <p class="text-sm text-[var(--brand-dark)] opacity-80">
-        Répondez aux questions, puis demandez à l'IA d'intégrer vos réponses pour générer la synthèse finale :
-      </p>
       <textarea
         id="answersInput"
-        class="ios-input h-24 resize-none mt-2"
-        placeholder="Vos réponses ou précisions..."
+        class="ios-input h-20 resize-none"
+        placeholder="Répondez aux questions ci-dessus..."
       ></textarea>
 
-      <button id="finalSynthesisBtn" class="app-button w-full mt-4">
+      <button id="finalSynthesisBtn" class="app-button w-full mt-3">
         Générer la Synthèse Finale (IA)
       </button>
 
-      <!-- Boîte qui affiche la finalSummary -->
-      <div id="finalBox" class="final-box mt-4" style="display:none;"></div>
+      <!-- Spinner étape 2 -->
+      <div id="loadingStep2" class="loading-overlay">
+        <div class="loading-ring"></div>
+        <p class="text-[var(--brand-dark)] text-sm">Génération de la synthèse...</p>
+      </div>
 
-      <button id="saveBtn" class="app-button w-full mt-4" style="background:#2C89A0;">
+      <div id="finalBox" class="final-box" style="display:none;"></div>
+
+      <button id="saveBtn" class="app-button w-full mt-3" style="background:#2C89A0;">
         Enregistrer en local
       </button>
     </div>
   </main>
 
-  <footer class="text-center pt-4 mt-4">
+  <footer class="text-center pt-2 mt-4 mb-2">
     <p class="text-[var(--brand-dark)] opacity-60 text-sm">
       © 2025 MedicalDebrief by CVA
     </p>
@@ -156,50 +218,61 @@
   document.addEventListener('DOMContentLoaded', () => {
     const auth = new AuthManager();
     const currentUser = auth.getCurrentUser();
-    if (!currentUser) {
+    if(!currentUser) {
       window.location.href = "login.html";
     }
-
     const visitsManager = new VisitsManager();
 
-    // Étape 1
+    // Sélecteurs
+    const visitTypeSelect = document.getElementById('visitTypeSelect');
+    const contactTypeSelect = document.getElementById('contactTypeSelect');
     const doctorInput = document.getElementById('doctorInput');
     const dateInput = document.getElementById('dateInput');
     const notesInput = document.getElementById('notesInput');
     const analyzeBtn = document.getElementById('analyzeBtn');
     const analysisBox = document.getElementById('analysisBox');
     const questionsBox = document.getElementById('questionsBox');
+    const loadingStep1 = document.getElementById('loadingStep1');
 
-    // Étape 2
     const step2Section = document.getElementById('step2Section');
     const answersInput = document.getElementById('answersInput');
     const finalSynthesisBtn = document.getElementById('finalSynthesisBtn');
+    const loadingStep2 = document.getElementById('loadingStep2');
     const finalBox = document.getElementById('finalBox');
     const saveBtn = document.getElementById('saveBtn');
 
     // Worker URL
     const workerURL = "https://royal-king-f79d.b00135522.workers.dev/";
 
-    // Variables pour stocker l'analyse, questions, finalSummary
     let currentAnalysis = [];
     let currentQuestions = [];
     let finalSummary = "";
 
-    // Étape 1: ANALYSIS
+    // ÉTAPE 1: analysis
     analyzeBtn.addEventListener('click', async () => {
+      const visitType = visitTypeSelect.value;
+      const contactType = contactTypeSelect.value;
       const docName = doctorInput.value.trim();
       const visitDate = dateInput.value;
       const notes = notesInput.value.trim();
+
       if(!docName || !visitDate || !notes) {
-        alert("Merci de remplir tous les champs (médecin, date, notes).");
+        alert("Veuillez remplir au moins le contact, la date et le compte-rendu initial.");
         return;
       }
 
-      // Requête
+      // Afficher le spinner
+      loadingStep1.style.display = "block";
+      // Masquer éventuellement l'analyse précédente
+      analysisBox.style.display = "none";
+      questionsBox.style.display = "none";
+
       const bodyReq = {
         action: "analysis",
         data: {
-          patientInfo: { salesRep: currentUser },
+          salesRep: currentUser,
+          visitType: visitType,
+          contactType: contactType,
           visitNotes: notes
         }
       };
@@ -211,44 +284,52 @@
           body: JSON.stringify(bodyReq)
         });
         const result = await resp.json();
+
+        // Cacher le spinner
+        loadingStep1.style.display = "none";
+
         if(result.error) {
-          analysisBox.style.display = "block";
-          analysisBox.textContent = "Erreur IA: " + result.error;
-          questionsBox.style.display = "none";
+          alert("Erreur IA: " + result.error);
           return;
         }
-        // On suppose { analysis: [...], questions: [...] }
+        // {analysis, questions}
         currentAnalysis = result.analysis || [];
         currentQuestions = result.questions || [];
 
         showAnalysis(currentAnalysis);
         showQuestions(currentQuestions);
 
-        // On affiche l'étape 2
         step2Section.style.display = "block";
 
       } catch(e) {
+        loadingStep1.style.display = "none";
         console.error(e);
-        analysisBox.style.display = "block";
-        analysisBox.textContent = "Erreur: " + e.message;
+        alert("Erreur: " + e.message);
       }
     });
 
-    // Étape 2: FINAL SYNTHESIS
+    // ÉTAPE 2: final_synthesis
     finalSynthesisBtn.addEventListener('click', async () => {
+      const visitType = visitTypeSelect.value;
+      const contactType = contactTypeSelect.value;
       const docName = doctorInput.value.trim();
       const visitDate = dateInput.value;
       const notes = notesInput.value.trim();
       const userAnswers = answersInput.value.trim();
 
-      // On appelle le Worker avec action = 'final_synthesis'
+      // Afficher le spinner
+      loadingStep2.style.display = "block";
+      finalBox.style.display = "none";
+
       const bodyReq = {
         action: "final_synthesis",
         data: {
-          patientInfo: { salesRep: currentUser },
+          salesRep: currentUser,
+          visitType: visitType,
+          contactType: contactType,
           visitNotes: notes,
-          analysis: currentAnalysis,   // tableau
-          questions: currentQuestions, // tableau
+          analysis: currentAnalysis,
+          questions: currentQuestions,
           answers: userAnswers
         }
       };
@@ -260,33 +341,38 @@
           body: JSON.stringify(bodyReq)
         });
         const result = await resp.json();
+
+        // Cacher le spinner
+        loadingStep2.style.display = "none";
+
         if(result.error) {
-          finalBox.style.display = "block";
-          finalBox.textContent = "Erreur IA: " + result.error;
+          alert("Erreur IA: " + result.error);
           return;
         }
-        // On suppose { finalSummary: "..." }
-        finalSummary = result.finalSummary || "Pas de synthèse finale.";
+        finalSummary = result.finalSummary || "(Pas de synthèse)";
 
         finalBox.style.display = "block";
         finalBox.textContent = finalSummary;
-
       } catch(e) {
+        loadingStep2.style.display = "none";
         console.error(e);
-        finalBox.style.display = "block";
-        finalBox.textContent = "Erreur: " + e.message;
+        alert("Erreur: " + e.message);
       }
     });
 
-    // Enregistrer la visite complète en local
+    // ENREGISTRER
     saveBtn.addEventListener('click', () => {
+      const visitType = visitTypeSelect.value;
+      const contactType = contactTypeSelect.value;
       const docName = doctorInput.value.trim();
-      const visitDate = dateInput.value;
+      const visitDate = dateInput.value.trim();
       const notes = notesInput.value.trim();
       const userAnswers = answersInput.value.trim();
 
       const objToStore = {
         user: currentUser,
+        visitType: visitType,
+        contactType: contactType,
         doctor: docName,
         date: visitDate,
         notes: notes,
@@ -300,14 +386,15 @@
       alert("Enregistré dans l'historique local !");
     });
 
-    function showAnalysis(analysisArr) {
-      analysisBox.style.display = "block";
-      if(!analysisArr || !analysisArr.length) {
+    // Helpers
+    function showAnalysis(arr) {
+      if(!arr.length) {
         analysisBox.textContent = "(Analyse vide)";
+        analysisBox.style.display = "block";
         return;
       }
       let html = "";
-      analysisArr.forEach(item => {
+      arr.forEach(item => {
         html += `
           <div class="analysis-item">
             <div class="analysis-item-title">${item.title}</div>
@@ -316,19 +403,22 @@
         `;
       });
       analysisBox.innerHTML = html;
+      analysisBox.style.display = "block";
     }
+
     function showQuestions(qArr) {
-      questionsBox.style.display = "block";
-      if(!qArr || !qArr.length) {
+      if(!qArr.length) {
         questionsBox.textContent = "(Aucune question)";
+        questionsBox.style.display = "block";
         return;
       }
-      let html = "<ul>";
+      let html = "<ol>";
       qArr.forEach(q => {
-        html += `<li><strong>${q}</strong></li>`;
+        html += `<li>${q}</li>`;
       });
-      html += "</ul>";
+      html += "</ol>";
       questionsBox.innerHTML = html;
+      questionsBox.style.display = "block";
     }
   });
   </script>
