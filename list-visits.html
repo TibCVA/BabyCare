@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="viewport-fit=cover, width=device-width, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="viewport-fit=cover,width=device-width,maximum-scale=1.0,user-scalable=no" />
   <meta name="theme-color" content="#FFFFFF" />
   <meta name="color-scheme" content="light" />
   <title>MedicalDebrief by CVA - Mes visites</title>
@@ -103,10 +103,9 @@
       const visitDate = visit.date || "";
       const notes = visit.notes || "";
       const answers = visit.answers || "";
-      const finalSummary = visit.finalSummary || ""; // texte final
+      const finalSummary = visit.finalSummary || "";
       const createdAt = new Date(visit.createdAt).toLocaleString();
 
-      // Attempt to parse analysis & questions if they're JSON strings
       let analysisHTML = "";
       let questionsHTML = "";
 
@@ -116,8 +115,7 @@
           const arr = JSON.parse(visit.analysis);
           analysisHTML = formatAnalysis(arr);
         } catch (err) {
-          // fallback
-          analysisHTML = `<pre class="break-words text-sm bg-gray-100 p-2 rounded">` + visit.analysis + `</pre>`;
+          analysisHTML = `<pre class="break-words text-sm bg-gray-100 p-2 rounded">${visit.analysis}</pre>`;
         }
       }
       // parse questions
@@ -126,11 +124,10 @@
           const qArr = JSON.parse(visit.questions);
           questionsHTML = formatQuestions(qArr);
         } catch (err) {
-          questionsHTML = `<pre class="break-words text-sm bg-gray-100 p-2 rounded">` + visit.questions + `</pre>`;
+          questionsHTML = `<pre class="break-words text-sm bg-gray-100 p-2 rounded">${visit.questions}</pre>`;
         }
       }
 
-      // Construire le HTML final
       let html = `
         <h2 class="font-bold text-[var(--brand-dark)] mb-1 break-words">${docName} - ${visitDate}</h2>
         <p class="text-sm mb-2 break-words">Notes : ${notes}</p>
@@ -138,34 +135,32 @@
 
       if(analysisHTML) {
         html += `
-          <div class="mt-2">
-            <strong class="text-[var(--brand-dark)]">Analyse IA :</strong>
+          <div class="mt-2 break-words">
+            <strong>Analyse IA :</strong>
             ${analysisHTML}
           </div>
         `;
       }
       if(questionsHTML) {
         html += `
-          <div class="mt-2">
-            <strong class="text-[var(--brand-dark)]">Questions IA :</strong>
+          <div class="mt-2 break-words">
+            <strong>Questions IA :</strong>
             ${questionsHTML}
           </div>
         `;
       }
       if(answers) {
         html += `
-          <div class="mt-2">
-            <strong class="text-[var(--brand-dark)]">Réponses Sales Rep :</strong>
+          <div class="mt-2 break-words">
+            <strong>Réponses :</strong>
             <div class="break-words text-sm mt-1">${answers}</div>
           </div>
         `;
       }
       if(finalSummary) {
-        // On l'affiche dans un bloc <pre> (avec break-words) ou direct
-        // À vous de voir si c'est du texte brut ou du JSON. On suppose brut
         html += `
-          <div class="mt-2">
-            <strong class="text-[var(--brand-dark)]">Synthèse Finale :</strong>
+          <div class="mt-2 break-words">
+            <strong>Synthèse Finale :</strong>
             <pre class="break-words text-sm bg-gray-50 p-2 mt-1 rounded">${finalSummary}</pre>
           </div>
         `;
@@ -174,17 +169,19 @@
       html += `
         <p class="text-xs mt-3 text-gray-400">Enregistré le ${createdAt}</p>
       `;
-      
+
       card.innerHTML = html;
       visitsContainer.appendChild(card);
     });
 
-    // Fonctions pour formater
+    // Helpers
     function formatAnalysis(analysisArr) {
-      if(!analysisArr || !Array.isArray(analysisArr)) {
-        return `<pre class="break-words text-sm bg-gray-100 p-2 rounded">${JSON.stringify(analysisArr, null, 2)}</pre>`;
+      if(!Array.isArray(analysisArr)) {
+        return `<pre class="break-words text-sm bg-gray-100 p-2 rounded">
+          ${JSON.stringify(analysisArr, null, 2)}
+        </pre>`;
       }
-      let html = `<div class="mt-1 text-sm">`;
+      let html = "<div class='mt-1 text-sm'>";
       analysisArr.forEach(item => {
         html += `
           <div class="analysis-item">
@@ -193,19 +190,20 @@
           </div>
         `;
       });
-      html += `</div>`;
+      html += "</div>";
       return html;
     }
-
     function formatQuestions(qArr) {
-      if(!qArr || !Array.isArray(qArr)) {
-        return `<pre class="break-words text-sm bg-gray-100 p-2 rounded">${JSON.stringify(qArr, null, 2)}</pre>`;
+      if(!Array.isArray(qArr)) {
+        return `<pre class="break-words text-sm bg-gray-100 p-2 rounded">
+          ${JSON.stringify(qArr, null, 2)}
+        </pre>`;
       }
-      let html = `<ul class="questions-list">`;
+      let html = "<ul class='questions-list'>";
       qArr.forEach(q => {
         html += `<li>${q}</li>`;
       });
-      html += `</ul>`;
+      html += "</ul>";
       return html;
     }
   });
