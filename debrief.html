@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="viewport-fit=cover, width=device-width, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="viewport-fit=cover,width=device-width,maximum-scale=1.0,user-scalable=no" />
   <meta name="theme-color" content="#FFFFFF" />
   <meta name="color-scheme" content="light" />
   <title>MedicalDebrief by CVA - Débrief</title>
@@ -55,18 +55,15 @@
     .app-button:active {
       transform: scale(0.97);
     }
-    /* Pour forcer le texte à se couper plutôt que déborder */
-    .break-words {
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      overflow-wrap: break-word;
-    }
-    .analysis-box, .questions-box, .final-summary-box {
+    .analysis-box, .questions-box, .final-box {
       background: #F9FEFF;
       border: 1px solid rgba(55,167,196,0.2);
       border-radius: 12px;
       padding: 16px;
       margin-top: 8px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
     .analysis-item {
       margin-bottom: 12px;
@@ -95,7 +92,7 @@
   </nav>
 
   <main class="max-w-xl mx-auto mt-4 px-4">
-    <!-- Étape 1 : Saisie et obtention de la synthèse -->
+    <!-- ÉTAPE 1 -->
     <div class="form-section">
       <h2 class="text-lg font-semibold text-[var(--brand-dark)] mb-6">
         Étape 1 : Informations & Analyse IA
@@ -117,31 +114,34 @@
         Analyser (IA)
       </button>
 
-      <!-- Boîte d'analyse & questions IA -->
-      <div id="analysisBox" class="analysis-box break-words mt-6" style="display:none;"></div>
-      <div id="questionsBox" class="questions-box break-words mt-4" style="display:none;"></div>
+      <!-- Analyse + Questions -->
+      <div id="analysisBox" class="analysis-box mt-6" style="display:none;"></div>
+      <div id="questionsBox" class="questions-box mt-4" style="display:none;"></div>
     </div>
 
-    <!-- Étape 2 : Réponses et résumé final -->
+    <!-- ÉTAPE 2 -->
     <div class="form-section" id="step2Section" style="display:none;">
       <h2 class="text-lg font-semibold text-[var(--brand-dark)] mb-2">
         Étape 2 : Réponses & Synthèse finale
       </h2>
       <p class="text-sm text-[var(--brand-dark)] opacity-80">
-        Répondez aux questions ci-dessus, puis enregistrez la version finale :
+        Répondez aux questions, puis demandez à l'IA d'intégrer vos réponses pour générer la synthèse finale :
       </p>
       <textarea
         id="answersInput"
         class="ios-input h-24 resize-none mt-2"
         placeholder="Vos réponses ou précisions..."
       ></textarea>
-      <div id="finalSummaryBox" class="final-summary-box break-words mt-4" style="display:none;"></div>
 
-      <button id="finalizeBtn" class="app-button w-full mt-4">
-        Générer la Synthèse Finale
+      <button id="finalSynthesisBtn" class="app-button w-full mt-4">
+        Générer la Synthèse Finale (IA)
       </button>
+
+      <!-- Boîte qui affiche la finalSummary -->
+      <div id="finalBox" class="final-box mt-4" style="display:none;"></div>
+
       <button id="saveBtn" class="app-button w-full mt-4" style="background:#2C89A0;">
-        Enregistrer la Version Finale
+        Enregistrer en local
       </button>
     </div>
   </main>
@@ -162,38 +162,40 @@
 
     const visitsManager = new VisitsManager();
 
+    // Étape 1
     const doctorInput = document.getElementById('doctorInput');
     const dateInput = document.getElementById('dateInput');
     const notesInput = document.getElementById('notesInput');
     const analyzeBtn = document.getElementById('analyzeBtn');
-
     const analysisBox = document.getElementById('analysisBox');
     const questionsBox = document.getElementById('questionsBox');
 
+    // Étape 2
     const step2Section = document.getElementById('step2Section');
     const answersInput = document.getElementById('answersInput');
-    const finalizeBtn = document.getElementById('finalizeBtn');
+    const finalSynthesisBtn = document.getElementById('finalSynthesisBtn');
+    const finalBox = document.getElementById('finalBox');
     const saveBtn = document.getElementById('saveBtn');
-    const finalSummaryBox = document.getElementById('finalSummaryBox');
 
-    // URL de votre Worker
+    // Worker URL
     const workerURL = "https://votre-worker.cloudflare.../";
 
-    let currentAnalysis = null;
-    let currentQuestions = null;
-    let finalSummaryText = "";
+    // Variables pour stocker l'analyse, questions, finalSummary
+    let currentAnalysis = [];
+    let currentQuestions = [];
+    let finalSummary = "";
 
+    // Étape 1: ANALYSIS
     analyzeBtn.addEventListener('click', async () => {
       const docName = doctorInput.value.trim();
       const visitDate = dateInput.value;
       const notes = notesInput.value.trim();
-
-      if (!docName || !visitDate || !notes) {
-        alert("Veuillez renseigner médecin, date et notes.");
+      if(!docName || !visitDate || !notes) {
+        alert("Merci de remplir tous les champs (médecin, date, notes).");
         return;
       }
 
-      // On appelle le Worker avec action = 'analysis'
+      // Requête
       const bodyReq = {
         action: "analysis",
         data: {
@@ -209,109 +211,124 @@
           body: JSON.stringify(bodyReq)
         });
         const result = await resp.json();
-        if (result.error) {
-          analysisBox.innerHTML = `<p class="text-sm text-red-500">${result.error}</p>`;
+        if(result.error) {
           analysisBox.style.display = "block";
+          analysisBox.textContent = "Erreur IA: " + result.error;
           questionsBox.style.display = "none";
           return;
         }
-        // On suppose { "analysis": [...], "questions": [...] }
+        // On suppose { analysis: [...], questions: [...] }
         currentAnalysis = result.analysis || [];
         currentQuestions = result.questions || [];
 
-        // On affiche
         showAnalysis(currentAnalysis);
         showQuestions(currentQuestions);
 
-        // On révèle l'étape 2
+        // On affiche l'étape 2
         step2Section.style.display = "block";
 
-      } catch (e) {
+      } catch(e) {
         console.error(e);
         analysisBox.style.display = "block";
-        analysisBox.innerHTML = `<p class="text-sm text-red-500">${e.message}</p>`;
+        analysisBox.textContent = "Erreur: " + e.message;
       }
     });
 
-    finalizeBtn.addEventListener('click', () => {
-      // Générer un texte final qui combine l'analyse IA + les réponses 
-      const userAnswers = answersInput.value.trim();
-
-      // Ici on fait un format tout simple
-      finalSummaryText = "=== SYNTHÈSE IA ===\n";
-      if (currentAnalysis && Array.isArray(currentAnalysis)) {
-        currentAnalysis.forEach(item => {
-          finalSummaryText += `\n**${item.title}**\n${item.content}\n`;
-        });
-      }
-      finalSummaryText += "\n=== QUESTIONS IA ===\n";
-      if (currentQuestions && currentQuestions.length) {
-        currentQuestions.forEach((q, idx) => {
-          finalSummaryText += `\nQ${idx+1}: ${q}`;
-        });
-      }
-      finalSummaryText += "\n=== RÉPONSES SALES REP ===\n";
-      finalSummaryText += userAnswers || "(Aucune réponse)";
-
-      finalSummaryBox.style.display = "block";
-      finalSummaryBox.textContent = finalSummaryText; // .textContent => évite le HTML injection
-    });
-
-    saveBtn.addEventListener('click', () => {
-      // On enregistre en localStorage
+    // Étape 2: FINAL SYNTHESIS
+    finalSynthesisBtn.addEventListener('click', async () => {
       const docName = doctorInput.value.trim();
       const visitDate = dateInput.value;
       const notes = notesInput.value.trim();
       const userAnswers = answersInput.value.trim();
 
-      // finalSummaryText contient la "version finale" 
-      const visitObj = {
+      // On appelle le Worker avec action = 'final_synthesis'
+      const bodyReq = {
+        action: "final_synthesis",
+        data: {
+          patientInfo: { salesRep: currentUser },
+          visitNotes: notes,
+          analysis: currentAnalysis,   // tableau
+          questions: currentQuestions, // tableau
+          answers: userAnswers
+        }
+      };
+
+      try {
+        const resp = await fetch(workerURL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bodyReq)
+        });
+        const result = await resp.json();
+        if(result.error) {
+          finalBox.style.display = "block";
+          finalBox.textContent = "Erreur IA: " + result.error;
+          return;
+        }
+        // On suppose { finalSummary: "..." }
+        finalSummary = result.finalSummary || "Pas de synthèse finale.";
+
+        finalBox.style.display = "block";
+        finalBox.textContent = finalSummary;
+
+      } catch(e) {
+        console.error(e);
+        finalBox.style.display = "block";
+        finalBox.textContent = "Erreur: " + e.message;
+      }
+    });
+
+    // Enregistrer la visite complète en local
+    saveBtn.addEventListener('click', () => {
+      const docName = doctorInput.value.trim();
+      const visitDate = dateInput.value;
+      const notes = notesInput.value.trim();
+      const userAnswers = answersInput.value.trim();
+
+      const objToStore = {
         user: currentUser,
         doctor: docName,
         date: visitDate,
         notes: notes,
-        analysis: JSON.stringify(currentAnalysis),   // on peut stocker l'analyse brute
-        questions: JSON.stringify(currentQuestions), // idem
+        analysis: JSON.stringify(currentAnalysis),
+        questions: JSON.stringify(currentQuestions),
         answers: userAnswers,
-        finalSummary: finalSummaryText,
+        finalSummary: finalSummary,
         createdAt: new Date().toISOString()
       };
-
-      visitsManager.saveVisit(visitObj);
-      alert("Version finale enregistrée avec succès !");
+      visitsManager.saveVisit(objToStore);
+      alert("Enregistré dans l'historique local !");
     });
 
     function showAnalysis(analysisArr) {
-      if (!analysisArr || !Array.isArray(analysisArr) || analysisArr.length === 0) {
-        analysisBox.innerHTML = `<p class="text-sm text-gray-500 italic">Aucune analyse retournée.</p>`;
-      } else {
-        let html = "";
-        analysisArr.forEach(item => {
-          html += `
-            <div class="analysis-item">
-              <div class="analysis-item-title">${item.title}</div>
-              <div class="analysis-item-content">${item.content}</div>
-            </div>
-          `;
-        });
-        analysisBox.innerHTML = html;
-      }
       analysisBox.style.display = "block";
-    }
-
-    function showQuestions(questionsArr) {
-      if (!questionsArr || !Array.isArray(questionsArr) || questionsArr.length === 0) {
-        questionsBox.innerHTML = `<p class="text-sm text-gray-500 italic">Aucune question renvoyée.</p>`;
-      } else {
-        let html = "<ul>";
-        questionsArr.forEach(q => {
-          // On met les questions en gras
-          html += `<li><strong>${q}</strong></li>`;
-        });
-        html += "</ul>";
-        questionsBox.innerHTML = html;
+      if(!analysisArr || !analysisArr.length) {
+        analysisBox.textContent = "(Analyse vide)";
+        return;
       }
+      let html = "";
+      analysisArr.forEach(item => {
+        html += `
+          <div class="analysis-item">
+            <div class="analysis-item-title">${item.title}</div>
+            <div class="analysis-item-content">${item.content}</div>
+          </div>
+        `;
+      });
+      analysisBox.innerHTML = html;
+    }
+    function showQuestions(qArr) {
       questionsBox.style.display = "block";
+      if(!qArr || !qArr.length) {
+        questionsBox.textContent = "(Aucune question)";
+        return;
+      }
+      let html = "<ul>";
+      qArr.forEach(q => {
+        html += `<li><strong>${q}</strong></li>`;
+      });
+      html += "</ul>";
+      questionsBox.innerHTML = html;
     }
   });
   </script>
