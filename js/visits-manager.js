@@ -1,19 +1,16 @@
 // js/visits-manager.js
-// Gère la liste des visites en localStorage
-
+// Stocke les visites en localStorage
 class VisitsManager {
-    constructor() {
-        this.key = "lightningDebriefVisits";
-    }
-
-    loadVisits() {
-        const raw = localStorage.getItem(this.key);
-        return raw ? JSON.parse(raw) : [];
-    }
-
-    saveVisit(visit) {
-        const visits = this.loadVisits();
-        visits.push(visit);
-        localStorage.setItem(this.key, JSON.stringify(visits));
-    }
+  constructor() {
+    this.visitsKey = "mdCVA_visits";
+  }
+  loadVisits() {
+    const data = StorageUtil.get(this.visitsKey);
+    return data || [];
+  }
+  saveVisit(visitObj) {
+    const all = this.loadVisits();
+    all.push(visitObj);
+    StorageUtil.set(this.visitsKey, all);
+  }
 }
