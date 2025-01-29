@@ -1,241 +1,170 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="viewport-fit=cover, width=device-width, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#FFFFFF">
-    <meta name="color-scheme" content="light">
-    <title>MedicalDebrief by CVA - Débrief</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
-    <script src="js/storage.js" defer></script>
-    <script src="js/auth-manager.js" defer></script>
-    <script src="js/visits-manager.js" defer></script>
-
-    <style>
-        :root {
-            --brand-light: #37A7C4;
-            --brand-medium: #2C89A0;
-            --brand-dark: #1E5F6E;
-            --pure-white: #FFFFFF;
-            --elevation-1: 0 1px 3px rgba(30,95,110,0.05), 0 1px 2px rgba(30,95,110,0.1);
-            --safe-top: env(safe-area-inset-top,47px);
-            --safe-bottom: env(safe-area-inset-bottom,34px);
-        }
-        body {
-            background: #F5F9FA;
-            font-family: -apple-system,BlinkMacSystemFont,sans-serif;
-            -webkit-font-smoothing: antialiased;
-            padding-top: calc(100px + var(--safe-top));
-            padding-bottom: calc(20px + var(--safe-bottom));
-        }
-        .nav-blur {
-            background: rgba(255,255,255,0.85);
-            backdrop-filter: saturate(180%) blur(20px);
-            border-bottom: 1px solid rgba(55,167,196,0.1);
-        }
-        .form-section {
-            background: white;
-            border-radius: 20px;
-            padding: 24px;
-            margin-bottom: 16px;
-            box-shadow: var(--elevation-1);
-            border:1px solid rgba(55,167,196,0.1);
-        }
-        .ios-input {
-            background: rgba(255,255,255,0.8);
-            border: 1px solid rgba(55,167,196,0.2);
-            border-radius: 12px;
-            padding: 12px 16px;
-            font-size: 16px;
-            width: 100%;
-            transition: all 0.3s ease;
-            margin-bottom: 8px;
-        }
-        .app-button {
-            background: linear-gradient(135deg, var(--brand-light), var(--brand-medium));
-            border-radius: 12px;
-            padding: 12px 24px;
-            color: white;
-            font-weight: 600;
-            box-shadow: var(--elevation-1);
-            transition: all 0.3s ease;
-            display: inline-block;
-            text-align: center;
-        }
-        .app-button:active {
-            transform: scale(0.98);
-        }
-        .exchange-range {
-            appearance: none;
-            width: 100%;
-            height: 6px;
-            border-radius: 3px;
-            background: rgba(55,167,196,0.1);
-            outline: none;
-            margin: 16px 0;
-        }
-        .exchange-range::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--brand-light), var(--brand-medium));
-            cursor: pointer;
-            box-shadow: 0 2px 6px rgba(55,167,196,0.2);
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="viewport-fit=cover, width=device-width, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#FFFFFF">
+  <meta name="color-scheme" content="light">
+  <title>MedicalDebrief by CVA - Débrief</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  <script src="js/storage.js" defer></script>
+  <script src="js/auth-manager.js" defer></script>
+  <script src="js/visits-manager.js" defer></script>
+  <style>
+    :root {
+      --brand-light: #37A7C4;
+      --brand-medium: #2C89A0;
+      --brand-dark: #1E5F6E;
+    }
+    body {
+      background: #F5F9FA;
+      font-family: -apple-system,BlinkMacSystemFont,sans-serif;
+      padding-top: 100px;
+      padding-bottom: 20px;
+    }
+    .form-section {
+      background: white;
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    .ios-input {
+      background: rgba(255,255,255,0.8);
+      border: 1px solid rgba(55,167,196,0.2);
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 16px;
+      width: 100%;
+      margin-bottom: 8px;
+    }
+    .app-button {
+      background: linear-gradient(135deg, var(--brand-light), var(--brand-medium));
+      border-radius: 12px;
+      padding: 12px 24px;
+      color: white;
+      font-weight: 600;
+      display: inline-block;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
-    <!-- Barre de navigation -->
-    <nav class="nav-blur fixed w-full z-50 top-0 left-0 right-0">
-        <div class="max-w-5xl mx-auto px-6">
-            <div class="flex items-center justify-between h-[calc(44px+var(--safe-top))] pt-[var(--safe-top)]">
-                <a href="login.html" class="text-[var(--brand-dark)]">← Déconnexion</a>
-                <span class="font-bold">Débrief Visite</span>
-                <a href="list-visits.html" class="text-[var(--brand-light)]">Mes visites</a>
-            </div>
-        </div>
-    </nav>
+  <nav class="fixed top-0 w-full bg-white shadow-sm flex items-center justify-between p-4">
+    <a href="login.html" class="text-[var(--brand-dark)]">Déconnexion</a>
+    <span class="font-bold">MedicalDebrief by CVA</span>
+    <a href="list-visits.html" class="text-[var(--brand-light)]">Mes visites</a>
+  </nav>
 
-    <main class="max-w-xl mx-auto mt-8 px-4">
-        <!-- Section Formulaire -->
-        <div class="form-section" id="debriefForm">
-            <h2 class="text-lg font-semibold text-[var(--brand-dark)] mb-6">
-                Informations de la visite
-            </h2>
-            <div>
-                <label class="block mb-1 text-sm text-[var(--brand-dark)]">Médecin</label>
-                <input type="text" id="doctorInput" class="ios-input" placeholder="Dr Dupont" />
+  <main class="max-w-xl mx-auto mt-8 px-4">
+    <div class="form-section" id="debriefForm">
+      <h2 class="text-lg font-semibold text-[var(--brand-dark)] mb-6">
+        Informations de la visite
+      </h2>
+      <div>
+          <label class="block mb-1 text-sm text-[var(--brand-dark)]">Médecin</label>
+          <input type="text" id="doctorInput" class="ios-input" placeholder="Dr Dupont" />
 
-                <label class="block mb-1 text-sm text-[var(--brand-dark)] mt-4">Date de visite</label>
-                <input type="date" id="dateInput" class="ios-input" />
-            </div>
-        </div>
+          <label class="block mb-1 text-sm text-[var(--brand-dark)] mt-4">Date de visite</label>
+          <input type="date" id="dateInput" class="ios-input" />
+      </div>
+    </div>
 
-        <div class="form-section">
-            <h2 class="text-lg font-semibold text-[var(--brand-dark)] mb-6">
-                Notes sur l'échange
-            </h2>
-            <textarea class="ios-input h-32 resize-none" id="notesInput"
-                placeholder="Décrivez votre échange..."></textarea>
-            <label class="block mb-1 text-sm text-[var(--brand-dark)] mt-4">
-                Fluidité de l'échange (1-10)
-            </label>
-            <input type="range" min="1" max="10" value="5" id="rangeExchange" class="exchange-range">
-            <div class="text-center text-lg font-semibold" id="exchangeValue">5/10</div>
-        </div>
+    <div class="form-section">
+      <h2 class="text-lg font-semibold text-[var(--brand-dark)] mb-6">
+        Notes sur l'échange
+      </h2>
+      <textarea class="ios-input h-32 resize-none" id="notesInput"
+        placeholder="Votre débrief de l'échange..."></textarea>
+    </div>
 
-        <div class="form-section">
-            <h2 class="text-lg font-semibold text-[var(--brand-dark)] mb-2">
-                Synthèse Claude
-            </h2>
-            <p class="text-sm text-[var(--brand-dark)] opacity-80 mb-3">
-                Générée automatiquement à l'enregistrement.
-            </p>
-            <div id="summaryBox" class="p-3 border border-dashed rounded-lg text-sm text-[var(--brand-dark)] 
-                 border-[var(--brand-light)] bg-[rgba(255,255,255,0.6)] min-h-[60px]">
-                (La synthèse apparaîtra ici)
-            </div>
-        </div>
+    <div class="form-section">
+      <h2 class="text-lg font-semibold text-[var(--brand-dark)] mb-2">
+        Synthèse (Claude via Worker)
+      </h2>
+      <div id="summaryBox" class="p-3 border border-dashed rounded-lg text-sm 
+        text-[var(--brand-dark)] min-h-[60px]">
+        (Aucune synthèse pour l'instant)
+      </div>
+    </div>
 
-        <button id="saveBtn" class="app-button w-full mt-4">Enregistrer le débrief</button>
-    </main>
+    <button id="saveBtn" class="app-button w-full mt-4">Enregistrer & Analyser</button>
+  </main>
 
-    <footer class="text-center pt-4 pb-[calc(20px+var(--safe-bottom))] mt-8">
-        <p class="text-[var(--brand-dark)] opacity-60 text-sm">
-            © 2025 MedicalDebrief by CVA
-        </p>
-    </footer>
+  <footer class="text-center pt-4 mt-8">
+    <p class="text-[var(--brand-dark)] opacity-60 text-sm">
+      © 2025 MedicalDebrief by CVA
+    </p>
+  </footer>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', ()=>{
-        const auth = new AuthManager();
-        const currentUser = auth.getCurrentUser();
-        if(!currentUser) {
-            // Si pas d'utilisateur connecté, on redirige vers login
-            window.location.href = "login.html";
+  <script>
+  document.addEventListener('DOMContentLoaded', async ()=>{
+    const auth = new AuthManager();
+    const currentUser = auth.getCurrentUser();
+    if(!currentUser) {
+      window.location.href = "login.html";
+    }
+
+    const visitsManager = new VisitsManager();
+
+    const doctorInput = document.getElementById('doctorInput');
+    const dateInput = document.getElementById('dateInput');
+    const notesInput = document.getElementById('notesInput');
+    const summaryBox = document.getElementById('summaryBox');
+    const saveBtn = document.getElementById('saveBtn');
+
+    saveBtn.addEventListener('click', async ()=>{
+      const docName = doctorInput.value.trim();
+      const visitDate = dateInput.value;
+      const notes = notesInput.value.trim();
+      if(!docName || !visitDate || !notes) {
+        alert("Merci de remplir tous les champs.");
+        return;
+      }
+
+      // 1) On fait un "analysis" + "treatment" ou juste "analysis" ?
+      //   Exemple: on fait un "analysis" sur le texte
+      const workerURL = "https://votre-worker.cloudflare.../"; // Mettez l’URL de VOTRE Worker
+      const bodyReq = {
+        action: 'analysis', // ou 'treatment' selon vos besoins
+        data: {
+          patientInfo: { userEmail: currentUser },
+          visitNotes: notes,
+          // d'autres champs...
         }
+      };
 
-        const visitsManager = new VisitsManager();
-
-        const doctorInput = document.getElementById('doctorInput');
-        const dateInput = document.getElementById('dateInput');
-        const notesInput = document.getElementById('notesInput');
-        const rangeExchange = document.getElementById('rangeExchange');
-        const exchangeValue = document.getElementById('exchangeValue');
-        const summaryBox = document.getElementById('summaryBox');
-        const saveBtn = document.getElementById('saveBtn');
-
-        rangeExchange.addEventListener('input', ()=>{
-            exchangeValue.textContent = rangeExchange.value + "/10";
+      try {
+        const resp = await fetch(workerURL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bodyReq)
         });
-
-        saveBtn.addEventListener('click', async ()=>{
-            // Récupérer données du formulaire
-            const docName = doctorInput.value.trim();
-            const visitDate = dateInput.value;
-            const notes = notesInput.value.trim();
-            const fluidity = parseInt(rangeExchange.value, 10);
-
-            if(!docName || !visitDate || !notes) {
-                alert("Merci de remplir tous les champs.");
-                return;
-            }
-
-            // Appel Claude
-            const summaryText = await generateClaudeSummary(notes);
-
-            // Construire un objet visite
-            const visit = {
-                user: currentUser,
-                doctor: docName,
-                date: visitDate,
-                notes: notes,
-                fluidity: fluidity,
-                summary: summaryText,
-                createdAt: new Date().toISOString()
-            };
-
-            // Enregistrer
-            visitsManager.saveVisit(visit);
-            summaryBox.textContent = summaryText || "(Aucune synthèse)";
-
-            alert("Débrief enregistré avec succès !");
-        });
-
-        // Appel direct à Claude - plus de placeholder 
-        async function generateClaudeSummary(text) {
-            try {
-                const resp = await fetch("https://api.anthropic.com/v1/complete", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        // Mettez VOTRE vraie clé ici, sans placeholder
-                        "x-api-key": "anthropic_ABC12345EXEMPLE", 
-                    },
-                    body: JSON.stringify({
-                        prompt: `Synthétise ce compte-rendu de visite:\n\n${text}\n\nRésumé:`,
-                        model: "claude-instant-1",
-                        max_tokens_to_sample: 150,
-                        temperature: 0.7
-                    })
-                });
-                if(!resp.ok) {
-                    console.error("Réponse non OK de l'API", resp.status);
-                    return "(Erreur API Claude)";
-                }
-                const data = await resp.json();
-                if(data && data.completion) {
-                    return data.completion.trim();
-                }
-                return "(Pas de réponse API)";
-            } catch(e) {
-                console.error(e);
-                return "(Erreur pendant l'appel API)";
-            }
+        const result = await resp.json();
+        // result contiendra l'objet { analysis: [...] } si tout va bien
+        if(result.error) {
+          summaryBox.textContent = "Erreur Worker: " + result.error;
+        } else {
+          summaryBox.textContent = JSON.stringify(result, null, 2);
         }
+      } catch(e) {
+        console.error(e);
+        summaryBox.textContent = "Erreur: " + e.message;
+      }
+
+      // 2) Enregistrer localement la visite
+      const visitObj = {
+        user: currentUser,
+        doctor: docName,
+        date: visitDate,
+        notes: notes,
+        summary: summaryBox.textContent,
+        createdAt: new Date().toISOString()
+      };
+      visitsManager.saveVisit(visitObj);
+
+      alert("Visite enregistrée !");
     });
-    </script>
+  });
+  </script>
 </body>
 </html>
