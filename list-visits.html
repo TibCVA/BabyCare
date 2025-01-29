@@ -6,20 +6,13 @@
   <meta name="theme-color" content="#FFFFFF" />
   <meta name="color-scheme" content="light" />
   <title>MedicalDebrief by CVA - Mes visites</title>
-
-  <!-- Tailwind -->
   <link
     href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
     rel="stylesheet"
   />
-
-  <!-- GSAP pour animer les stats-cards -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-
   <script src="js/storage.js" defer></script>
   <script src="js/auth-manager.js" defer></script>
   <script src="js/visits-manager.js" defer></script>
-
   <style>
     :root {
       --brand-dark: #1E5F6E;
@@ -43,12 +36,6 @@
       margin-bottom: 12px;
       box-shadow: 0 1px 3px rgba(30,95,110,0.05), 0 1px 2px rgba(30,95,110,0.1);
       border: 1px solid rgba(55,167,196,0.1);
-      transition: all 0.3s ease;
-      cursor: pointer;
-    }
-    .visit-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(55,167,196,0.1);
     }
     .visit-card h2 {
       font-size: 15px;
@@ -80,54 +67,17 @@
       font-weight: 700;
       color: var(--brand-dark);
     }
-
-    /* Stats carousel */
-    .stats-carousel {
-      overflow-x: auto;
-      padding-bottom: 8px;
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-    .stats-carousel::-webkit-scrollbar {
-      display: none;
-    }
-    .stats-grid {
-      display: flex;
-      gap: 16px;
-      padding: 0 16px;
-    }
-    .stat-card {
-      min-width: 200px;
-      background: linear-gradient(135deg, rgba(55,167,196,0.1), rgba(255,255,255,0.9));
-      border-radius: 16px;
-      padding: 18px;
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(55,167,196,0.1);
-      box-shadow: 0 8px 24px rgba(55,167,196,0.08);
-    }
-    .stat-value {
-      font-size: 32px;
-      font-weight: 700;
-      background: linear-gradient(135deg, var(--brand-dark), var(--brand-light));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
   </style>
 </head>
 <body>
   <!-- Barre de nav -->
-  <nav class="fixed top-0 w-full flex items-center justify-between px-4 py-3 bg-white shadow-sm">
+  <nav class="fixed top-0 w-full flex items-center justify-between px-4 py-3">
     <a href="debrief.html" class="text-[var(--brand-dark)] text-sm font-medium">← Retour</a>
     <span class="font-bold">Mes visites</span>
     <div></div>
   </nav>
 
   <main class="pt-16 px-4 max-w-xl mx-auto">
-    <!-- Stats carousel -->
-    <div class="stats-carousel mb-8">
-      <div class="stats-grid"></div>
-    </div>
-
     <h1 class="text-xl font-bold mb-4 text-[var(--brand-dark)]">Historique</h1>
     <div id="visitsContainer"></div>
   </main>
@@ -152,8 +102,6 @@
     const allVisits = visitsManager.loadVisits();
     const myVisits = allVisits.filter(v => v.user === user);
 
-    initStats(myVisits); // On initialise les stats
-
     if(myVisits.length === 0) {
       visitsContainer.innerHTML = "<p class='text-gray-500 text-sm'>Aucune visite enregistrée.</p>";
       return;
@@ -173,6 +121,7 @@
         <h2>${docName} - ${visitDate}</h2>
         <p>Notes : ${notes}</p>
       `;
+
       if(finalSummary) {
         html += `
           <div class="final-summary-block mt-2">
@@ -183,6 +132,7 @@
       } else {
         html += `<p class="text-sm text-gray-500 italic">Aucune synthèse finale disponible.</p>`;
       }
+
       html += `
         <p class="text-xs mt-2 text-gray-400">Enregistré le ${createdAt}</p>
       `;
@@ -191,48 +141,6 @@
       visitsContainer.appendChild(card);
     });
   });
-
-  function initStats(visits) {
-    const container = document.querySelector('.stats-grid');
-
-    const stats = {
-      total: {
-        title: 'Visites Totales',
-        value: visits.length,
-        icon: '📈'
-      },
-      averageDuration: {
-        title: 'Durée Moyenne',
-        value: '12min', // Placeholder ou calculer réellement
-        icon: '⏱️'
-      },
-      recentActivity: {
-        title: '7 derniers jours',
-        value: visits.filter(v => new Date(v.createdAt) > Date.now() - 7*86400000).length,
-        icon: '🔥'
-      }
-    };
-
-    Object.values(stats).forEach(stat => {
-      const card = document.createElement('div');
-      card.className = 'stat-card';
-      card.innerHTML = `
-        <div class="text-2xl mb-2">${stat.icon}</div>
-        <div class="stat-value">${stat.value}</div>
-        <div class="text-sm text-[var(--brand-dark)] opacity-80 mt-1">${stat.title}</div>
-      `;
-      container.appendChild(card);
-    });
-
-    // Animation GSAP
-    gsap.from('.stat-card', {
-      duration: 0.8,
-      opacity: 0,
-      y: 20,
-      stagger: 0.15,
-      ease: 'power3.out'
-    });
-  }
   </script>
 </body>
 </html>
