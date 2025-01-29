@@ -1,95 +1,65 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="viewport-fit=cover,width=device-width,maximum-scale=1.0,user-scalable=no" />
-  <meta name="theme-color" content="#FFFFFF" />
-  <meta name="color-scheme" content="light" />
-  <title>MedicalDebrief by CVA - Accueil</title>
-  <link
-    href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
-    rel="stylesheet"
-  />
-  <style>
-    :root {
-      --brand-light: #37A7C4;
-      --brand-medium: #2C89A0;
-      --brand-dark: #1E5F6E;
-    }
-    body {
-      background: #F5F9FA;
-      font-family: -apple-system,BlinkMacSystemFont,sans-serif;
-      padding-top: 60px;
-      padding-bottom: 20px;
-    }
-    nav {
-      background: #fff;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-    }
-    .app-button {
-      background: linear-gradient(135deg, var(--brand-light), var(--brand-medium));
-      border-radius: 12px;
-      padding: 14px 24px;
-      color: white;
-      font-weight: 600;
-      transition: transform 0.2s ease;
-    }
-    .app-button:active {
-      transform: scale(0.96);
-    }
-
-    /* Animation d'accueil */
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
-    img.float-logo {
-      animation: float 3s ease-in-out infinite;
-      filter: drop-shadow(0 8px 24px rgba(55,167,196,0.15));
-    }
-    h1 {
-      position: relative;
-      overflow: hidden;
-    }
-    h1::after {
-      content: '';
-      position: absolute;
-      bottom: -5px;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, var(--brand-light), var(--brand-dark));
-      opacity: 0.2;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="viewport-fit=cover, width=device-width, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#FFFFFF">
+    <meta name="color-scheme" content="light">
+    <title>MedicalDebrief by CVA</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --brand-light: #37A7C4;
+            --brand-medium: #2C89A0;
+            --brand-dark: #1E5F6E;
+            --pure-white: #FFFFFF;
+            --elevation-2: 0 4px 6px rgba(30, 95, 110, 0.1), 0 2px 4px rgba(30, 95, 110, 0.06);
+            --safe-top: env(safe-area-inset-top, 47px);
+            --safe-bottom: env(safe-area-inset-bottom, 34px);
+        }
+        body {
+            background: #F5F9FA;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .app-button {
+            background: linear-gradient(135deg, var(--brand-light), var(--brand-medium));
+            border-radius: 12px;
+            padding: 12px 24px;
+            color: white;
+            font-weight: 600;
+            box-shadow: var(--elevation-2);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .brand-gradient-text {
+            background: linear-gradient(135deg, var(--brand-dark), var(--brand-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
 </head>
 <body>
-  <!-- Barre de nav minimaliste -->
-  <nav class="fixed top-0 w-full flex items-center justify-between px-4 py-3 bg-white shadow-sm">
-    <span class="font-bold text-[var(--brand-dark)]">MedicalDebrief by CVA</span>
-    <div></div>
-  </nav>
+    <main class="pt-10 px-6">
+        <section class="max-w-5xl mx-auto text-center py-16">
+            <img src="assets/img/Logo3.png" alt="MedicalDebrief Logo" class="w-32 mx-auto mb-8" />
+            <h1 class="text-4xl font-bold brand-gradient-text mb-6 leading-tight">
+                MedicalDebrief by CVA
+            </h1>
+            <p class="text-lg text-[var(--brand-dark)] opacity-80 max-w-xl mx-auto mb-8">
+                La plateforme de débrief médical assistée par IA, pour synthétiser et analyser rapidement vos visites et rapports.
+            </p>
+            <a href="login.html" class="app-button text-lg">
+                Commencer
+            </a>
+        </section>
+    </main>
 
-  <main class="pt-16 px-4 max-w-xl mx-auto text-center">
-    <section class="mt-10">
-      <!-- Logo animé -->
-      <img src="assets/img/Logo3.png" alt="MedicalDebrief Logo" class="float-logo w-32 mx-auto mb-6" />
-      <h1 class="text-3xl font-bold text-[var(--brand-dark)] mb-4">
-        Plateforme d'accueil
-      </h1>
-      <p class="text-[var(--brand-dark)] opacity-80 max-w-md mx-auto mb-6">
-        Bienvenue dans MedicalDebrief, l'app de débrief médical assistée par IA.
-      </p>
-      <a href="login.html" class="app-button text-lg inline-block">
-        Commencer
-      </a>
-    </section>
-  </main>
-
-  <footer class="text-center pt-4 mt-8">
-    <p class="text-[var(--brand-dark)] opacity-60 text-sm">
-      © 2025 MedicalDebrief by CVA
-    </p>
-  </footer>
+    <footer class="text-center pb-[calc(20px+var(--safe-bottom))]">
+        <p class="text-[var(--brand-dark)] opacity-60 text-sm">
+            © 2025 MedicalDebrief by CVA
+        </p>
+    </footer>
 </body>
 </html>
