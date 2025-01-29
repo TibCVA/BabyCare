@@ -5,7 +5,7 @@
     <meta name="viewport" content="viewport-fit=cover, width=device-width, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#FFFFFF">
     <meta name="color-scheme" content="light">
-    <title>LightningDebrief by CVA - Débrief</title>
+    <title>MedicalDebrief by CVA - Débrief</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <script src="js/storage.js" defer></script>
     <script src="js/auth-manager.js" defer></script>
@@ -144,7 +144,7 @@
 
     <footer class="text-center pt-4 pb-[calc(20px+var(--safe-bottom))] mt-8">
         <p class="text-[var(--brand-dark)] opacity-60 text-sm">
-            © 2025 LightningDebrief by CVA
+            © 2025 MedicalDebrief by CVA
         </p>
     </footer>
 
@@ -222,14 +222,14 @@
                     })
                 });
                 if(!resp.ok) {
-                    console.error("Réponse non OK de l'API Claude", resp.status);
+                    console.error("Réponse non OK de l'API", resp.status);
                     return "(Erreur API Claude)";
                 }
                 const data = await resp.json();
                 if(data && data.completion) {
                     return data.completion.trim();
                 }
-                return "(Pas de réponse Claude)";
+                return "(Pas de réponse API)";
             } catch(e) {
                 console.error(e);
                 return "(Erreur pendant l'appel API)";
