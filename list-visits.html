@@ -20,8 +20,7 @@
     }
     body {
       background: #F5F9FA;
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-      -webkit-font-smoothing: antialiased;
+      font-family: -apple-system,BlinkMacSystemFont,sans-serif;
       padding-top: 80px;
       padding-bottom: 20px;
     }
@@ -33,24 +32,28 @@
       box-shadow: 0 1px 3px rgba(30,95,110,0.05), 0 1px 2px rgba(30,95,110,0.1);
       border: 1px solid rgba(55,167,196,0.1);
     }
-    /* Pour forcer la coupure de mots ou le passage à la ligne */
     .break-words {
-      white-space: pre-wrap;      /* Respecte les retours à la ligne, en autorisant */
-      word-wrap: break-word;      /* la coupure si un mot est trop long */
-      overflow-wrap: break-word;  /* compatibilité supplémentaire */
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
     .analysis-item {
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
     .analysis-item-title {
-      font-weight: 600; color: var(--brand-dark);
+      font-weight: 600;
+      color: var(--brand-dark);
     }
     .analysis-item-content {
-      font-size: 14px; color: var(--brand-dark); opacity: 0.9;
+      font-size: 14px;
+      color: var(--brand-dark);
+      opacity: 0.9;
     }
     .questions-list {
-      margin-left: 1em;
+      margin-left: 1.3rem;
       list-style: disc;
+      margin-top: 4px;
+      margin-bottom: 4px;
     }
   </style>
 </head>
@@ -77,19 +80,17 @@
   document.addEventListener('DOMContentLoaded', () => {
     const auth = new AuthManager();
     const user = auth.getCurrentUser();
-    if (!user) {
+    if(!user) {
       window.location.href = "login.html";
     }
 
     const visitsManager = new VisitsManager();
     const visitsContainer = document.getElementById('visitsContainer');
 
-    // Récupère toutes les visites en localStorage
     const allVisits = visitsManager.loadVisits();
-    // Filtre pour l'utilisateur connecté
     const myVisits = allVisits.filter(v => v.user === user);
 
-    if (myVisits.length === 0) {
+    if(myVisits.length === 0) {
       visitsContainer.innerHTML = "<p class='text-gray-500'>Aucune visite enregistrée.</p>";
       return;
     }
@@ -98,109 +99,92 @@
       const card = document.createElement('div');
       card.className = "visit-card";
 
-      // On va parser la propriété "analysis" ou "summary" ou "questions" 
-      // (selon votre stockage). Supposons que la page debrief stocke tout dans "analysis", "questions", "answers"
-      // ou parfois stocke un bloc JSON dans "summary". Adaptation ci-dessous.
+      const docName = visit.doctor || "(Inconnu)";
+      const visitDate = visit.date || "";
+      const notes = visit.notes || "";
+      const answers = visit.answers || "";
+      const finalSummary = visit.finalSummary || ""; // texte final
+      const createdAt = new Date(visit.createdAt).toLocaleString();
 
-      // Pour l'exemple, on va considérer le champ 'analysis' s'il existe
-      // et 'questions'. Si vous n'avez qu'un 'summary' qui contient du JSON,
-      // on parse le "visit.summary".
-
+      // Attempt to parse analysis & questions if they're JSON strings
       let analysisHTML = "";
       let questionsHTML = "";
 
-      // Cas 1 : vous aviez tout mis dans visit.summary (un JSON texte)
-      if (visit.summary) {
-        // Essayer de parser
-        try {
-          const parsed = JSON.parse(visit.summary);
-          // Par exemple, s'il contient .analysis et .questions
-          if (parsed.analysis && Array.isArray(parsed.analysis)) {
-            analysisHTML = formatAnalysis(parsed.analysis);
-          } else {
-            // S'il n'y a pas d'analysis array, on fallback
-            analysisHTML = `<pre class="break-words">${visit.summary}</pre>`;
-          }
-          if (parsed.questions && Array.isArray(parsed.questions)) {
-            questionsHTML = formatQuestions(parsed.questions);
-          }
-        } catch (e) {
-          // Si le parse échoue, on affiche brut dans un <pre> + CSS break
-          analysisHTML = `<pre class="break-words">${visit.summary}</pre>`;
-        }
-      }
-
-      // Cas 2 : vous avez déjà des champs distincts, ex: visit.analysis, visit.questions, visit.answers
-      // On illustre, si vous stockez "analysis" en clair
+      // parse analysis
       if (visit.analysis) {
-        // visit.analysis peut être un tableau JSON ou un string
         try {
-          const analysisObj = typeof visit.analysis === 'string'
-            ? JSON.parse(visit.analysis)
-            : visit.analysis;
-          analysisHTML = formatAnalysis(analysisObj);
-        } catch (e) {
+          const arr = JSON.parse(visit.analysis);
+          analysisHTML = formatAnalysis(arr);
+        } catch (err) {
           // fallback
-          analysisHTML = `<pre class="break-words">${visit.analysis}</pre>`;
+          analysisHTML = `<pre class="break-words text-sm bg-gray-100 p-2 rounded">` + visit.analysis + `</pre>`;
         }
       }
+      // parse questions
       if (visit.questions) {
         try {
-          const questionsObj = typeof visit.questions === 'string'
-            ? JSON.parse(visit.questions)
-            : visit.questions;
-          questionsHTML = formatQuestions(questionsObj);
-        } catch (e) {
-          questionsHTML = `<pre class="break-words">${visit.questions}</pre>`;
+          const qArr = JSON.parse(visit.questions);
+          questionsHTML = formatQuestions(qArr);
+        } catch (err) {
+          questionsHTML = `<pre class="break-words text-sm bg-gray-100 p-2 rounded">` + visit.questions + `</pre>`;
         }
       }
 
-      // On ajoute la réponse du sales rep si vous la stockez dans visit.answers
-      let answersHTML = "";
-      if (visit.answers) {
-        answersHTML = `
-          <div class="mt-3">
-            <strong>Réponses du Sales Rep:</strong>
-            <div class="break-words text-sm mt-1">${visit.answers}</div>
+      // Construire le HTML final
+      let html = `
+        <h2 class="font-bold text-[var(--brand-dark)] mb-1 break-words">${docName} - ${visitDate}</h2>
+        <p class="text-sm mb-2 break-words">Notes : ${notes}</p>
+      `;
+
+      if(analysisHTML) {
+        html += `
+          <div class="mt-2">
+            <strong class="text-[var(--brand-dark)]">Analyse IA :</strong>
+            ${analysisHTML}
+          </div>
+        `;
+      }
+      if(questionsHTML) {
+        html += `
+          <div class="mt-2">
+            <strong class="text-[var(--brand-dark)]">Questions IA :</strong>
+            ${questionsHTML}
+          </div>
+        `;
+      }
+      if(answers) {
+        html += `
+          <div class="mt-2">
+            <strong class="text-[var(--brand-dark)]">Réponses Sales Rep :</strong>
+            <div class="break-words text-sm mt-1">${answers}</div>
+          </div>
+        `;
+      }
+      if(finalSummary) {
+        // On l'affiche dans un bloc <pre> (avec break-words) ou direct
+        // À vous de voir si c'est du texte brut ou du JSON. On suppose brut
+        html += `
+          <div class="mt-2">
+            <strong class="text-[var(--brand-dark)]">Synthèse Finale :</strong>
+            <pre class="break-words text-sm bg-gray-50 p-2 mt-1 rounded">${finalSummary}</pre>
           </div>
         `;
       }
 
-      // Construire le HTML final dans la carte
-      card.innerHTML = `
-        <h2 class="font-bold text-[var(--brand-dark)] mb-1">${visit.doctor} - ${visit.date}</h2>
-        <p class="text-sm mb-2">Notes : ${visit.notes || '(Aucune note)'}</p>
-        
-        <!-- Affichage Analysis si présent -->
-        ${
-          analysisHTML
-            ? `<div class="text-sm mt-2 break-words">${analysisHTML}</div>`
-            : ''
-        }
-
-        <!-- Affichage Questions -->
-        ${
-          questionsHTML
-            ? `<div class="text-sm mt-2"><strong>Questions de l'IA:</strong>${questionsHTML}</div>`
-            : ''
-        }
-        
-        ${answersHTML}
-
-        <p class="text-xs mt-2 text-gray-400">Enregistré le ${new Date(visit.createdAt).toLocaleString()}</p>
+      html += `
+        <p class="text-xs mt-3 text-gray-400">Enregistré le ${createdAt}</p>
       `;
-
+      
+      card.innerHTML = html;
       visitsContainer.appendChild(card);
     });
 
-    // Helpers pour formater
+    // Fonctions pour formater
     function formatAnalysis(analysisArr) {
-      // analysisArr = [ {title, content}, {title, content}, ... ]
-      if (!analysisArr || !Array.isArray(analysisArr)) {
-        // Fallback: renvoyer un pre
-        return `<pre class="break-words">${JSON.stringify(analysisArr, null, 2)}</pre>`;
+      if(!analysisArr || !Array.isArray(analysisArr)) {
+        return `<pre class="break-words text-sm bg-gray-100 p-2 rounded">${JSON.stringify(analysisArr, null, 2)}</pre>`;
       }
-      let html = '<div class="mt-2">';
+      let html = `<div class="mt-1 text-sm">`;
       analysisArr.forEach(item => {
         html += `
           <div class="analysis-item">
@@ -209,20 +193,19 @@
           </div>
         `;
       });
-      html += '</div>';
+      html += `</div>`;
       return html;
     }
 
-    function formatQuestions(questionsArr) {
-      // questionsArr = [ "Q1...", "Q2..." ]
-      if (!Array.isArray(questionsArr)) {
-        return `<pre class="break-words">${JSON.stringify(questionsArr, null, 2)}</pre>`;
+    function formatQuestions(qArr) {
+      if(!qArr || !Array.isArray(qArr)) {
+        return `<pre class="break-words text-sm bg-gray-100 p-2 rounded">${JSON.stringify(qArr, null, 2)}</pre>`;
       }
-      let html = '<ul class="questions-list">';
-      questionsArr.forEach(q => {
+      let html = `<ul class="questions-list">`;
+      qArr.forEach(q => {
         html += `<li>${q}</li>`;
       });
-      html += '</ul>';
+      html += `</ul>`;
       return html;
     }
   });
