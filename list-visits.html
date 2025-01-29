@@ -1,26 +1,72 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="viewport-fit=cover, width=device-width, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#FFFFFF">
-  <meta name="color-scheme" content="light">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="viewport-fit=cover, width=device-width, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#FFFFFF" />
+  <meta name="color-scheme" content="light" />
   <title>MedicalDebrief by CVA - Mes visites</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
+    rel="stylesheet"
+  />
   <script src="js/storage.js" defer></script>
   <script src="js/auth-manager.js" defer></script>
   <script src="js/visits-manager.js" defer></script>
+  <style>
+    :root {
+      --brand-dark: #1E5F6E;
+      --brand-light: #37A7C4;
+    }
+    body {
+      background: #F5F9FA;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      padding-top: 80px;
+      padding-bottom: 20px;
+    }
+    .visit-card {
+      background: white;
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 3px rgba(30,95,110,0.05), 0 1px 2px rgba(30,95,110,0.1);
+      border: 1px solid rgba(55,167,196,0.1);
+    }
+    /* Pour forcer la coupure de mots ou le passage à la ligne */
+    .break-words {
+      white-space: pre-wrap;      /* Respecte les retours à la ligne, en autorisant */
+      word-wrap: break-word;      /* la coupure si un mot est trop long */
+      overflow-wrap: break-word;  /* compatibilité supplémentaire */
+    }
+    .analysis-item {
+      margin-bottom: 12px;
+    }
+    .analysis-item-title {
+      font-weight: 600; color: var(--brand-dark);
+    }
+    .analysis-item-content {
+      font-size: 14px; color: var(--brand-dark); opacity: 0.9;
+    }
+    .questions-list {
+      margin-left: 1em;
+      list-style: disc;
+    }
+  </style>
 </head>
-<body class="bg-[#F5F9FA] min-h-screen">
+<body>
+  <!-- Barre de nav -->
   <nav class="fixed top-0 w-full bg-white shadow-sm flex items-center justify-between p-4">
     <a href="debrief.html" class="text-[var(--brand-dark)]">← Retour</a>
     <span class="font-bold">Mes visites</span>
     <div></div>
   </nav>
+
   <main class="pt-16 px-4 max-w-xl mx-auto">
     <h1 class="text-2xl font-bold mb-4 text-[var(--brand-dark)]">Historique</h1>
     <div id="visitsContainer"></div>
   </main>
+
   <footer class="text-center pt-4 mt-8">
     <p class="text-[var(--brand-dark)] opacity-60 text-sm">
       © 2025 MedicalDebrief by CVA
@@ -28,36 +74,157 @@
   </footer>
 
   <script>
-  document.addEventListener('DOMContentLoaded', ()=>{
+  document.addEventListener('DOMContentLoaded', () => {
     const auth = new AuthManager();
     const user = auth.getCurrentUser();
-    if(!user) {
+    if (!user) {
       window.location.href = "login.html";
     }
 
     const visitsManager = new VisitsManager();
     const visitsContainer = document.getElementById('visitsContainer');
 
+    // Récupère toutes les visites en localStorage
     const allVisits = visitsManager.loadVisits();
+    // Filtre pour l'utilisateur connecté
     const myVisits = allVisits.filter(v => v.user === user);
 
-    if(myVisits.length === 0) {
+    if (myVisits.length === 0) {
       visitsContainer.innerHTML = "<p class='text-gray-500'>Aucune visite enregistrée.</p>";
       return;
     }
 
     myVisits.forEach(visit => {
-      const div = document.createElement('div');
-      div.className = "bg-white p-4 rounded-lg mb-4 shadow-sm";
+      const card = document.createElement('div');
+      card.className = "visit-card";
 
-      div.innerHTML = `
+      // On va parser la propriété "analysis" ou "summary" ou "questions" 
+      // (selon votre stockage). Supposons que la page debrief stocke tout dans "analysis", "questions", "answers"
+      // ou parfois stocke un bloc JSON dans "summary". Adaptation ci-dessous.
+
+      // Pour l'exemple, on va considérer le champ 'analysis' s'il existe
+      // et 'questions'. Si vous n'avez qu'un 'summary' qui contient du JSON,
+      // on parse le "visit.summary".
+
+      let analysisHTML = "";
+      let questionsHTML = "";
+
+      // Cas 1 : vous aviez tout mis dans visit.summary (un JSON texte)
+      if (visit.summary) {
+        // Essayer de parser
+        try {
+          const parsed = JSON.parse(visit.summary);
+          // Par exemple, s'il contient .analysis et .questions
+          if (parsed.analysis && Array.isArray(parsed.analysis)) {
+            analysisHTML = formatAnalysis(parsed.analysis);
+          } else {
+            // S'il n'y a pas d'analysis array, on fallback
+            analysisHTML = `<pre class="break-words">${visit.summary}</pre>`;
+          }
+          if (parsed.questions && Array.isArray(parsed.questions)) {
+            questionsHTML = formatQuestions(parsed.questions);
+          }
+        } catch (e) {
+          // Si le parse échoue, on affiche brut dans un <pre> + CSS break
+          analysisHTML = `<pre class="break-words">${visit.summary}</pre>`;
+        }
+      }
+
+      // Cas 2 : vous avez déjà des champs distincts, ex: visit.analysis, visit.questions, visit.answers
+      // On illustre, si vous stockez "analysis" en clair
+      if (visit.analysis) {
+        // visit.analysis peut être un tableau JSON ou un string
+        try {
+          const analysisObj = typeof visit.analysis === 'string'
+            ? JSON.parse(visit.analysis)
+            : visit.analysis;
+          analysisHTML = formatAnalysis(analysisObj);
+        } catch (e) {
+          // fallback
+          analysisHTML = `<pre class="break-words">${visit.analysis}</pre>`;
+        }
+      }
+      if (visit.questions) {
+        try {
+          const questionsObj = typeof visit.questions === 'string'
+            ? JSON.parse(visit.questions)
+            : visit.questions;
+          questionsHTML = formatQuestions(questionsObj);
+        } catch (e) {
+          questionsHTML = `<pre class="break-words">${visit.questions}</pre>`;
+        }
+      }
+
+      // On ajoute la réponse du sales rep si vous la stockez dans visit.answers
+      let answersHTML = "";
+      if (visit.answers) {
+        answersHTML = `
+          <div class="mt-3">
+            <strong>Réponses du Sales Rep:</strong>
+            <div class="break-words text-sm mt-1">${visit.answers}</div>
+          </div>
+        `;
+      }
+
+      // Construire le HTML final dans la carte
+      card.innerHTML = `
         <h2 class="font-bold text-[var(--brand-dark)] mb-1">${visit.doctor} - ${visit.date}</h2>
-        <p class="text-sm mb-2">Notes : ${visit.notes}</p>
-        <pre class="text-xs bg-gray-100 p-2 rounded">${visit.summary || '(pas de synthèse)'}</pre>
+        <p class="text-sm mb-2">Notes : ${visit.notes || '(Aucune note)'}</p>
+        
+        <!-- Affichage Analysis si présent -->
+        ${
+          analysisHTML
+            ? `<div class="text-sm mt-2 break-words">${analysisHTML}</div>`
+            : ''
+        }
+
+        <!-- Affichage Questions -->
+        ${
+          questionsHTML
+            ? `<div class="text-sm mt-2"><strong>Questions de l'IA:</strong>${questionsHTML}</div>`
+            : ''
+        }
+        
+        ${answersHTML}
+
         <p class="text-xs mt-2 text-gray-400">Enregistré le ${new Date(visit.createdAt).toLocaleString()}</p>
       `;
-      visitsContainer.appendChild(div);
+
+      visitsContainer.appendChild(card);
     });
+
+    // Helpers pour formater
+    function formatAnalysis(analysisArr) {
+      // analysisArr = [ {title, content}, {title, content}, ... ]
+      if (!analysisArr || !Array.isArray(analysisArr)) {
+        // Fallback: renvoyer un pre
+        return `<pre class="break-words">${JSON.stringify(analysisArr, null, 2)}</pre>`;
+      }
+      let html = '<div class="mt-2">';
+      analysisArr.forEach(item => {
+        html += `
+          <div class="analysis-item">
+            <div class="analysis-item-title">${item.title}</div>
+            <div class="analysis-item-content">${item.content}</div>
+          </div>
+        `;
+      });
+      html += '</div>';
+      return html;
+    }
+
+    function formatQuestions(questionsArr) {
+      // questionsArr = [ "Q1...", "Q2..." ]
+      if (!Array.isArray(questionsArr)) {
+        return `<pre class="break-words">${JSON.stringify(questionsArr, null, 2)}</pre>`;
+      }
+      let html = '<ul class="questions-list">';
+      questionsArr.forEach(q => {
+        html += `<li>${q}</li>`;
+      });
+      html += '</ul>';
+      return html;
+    }
   });
   </script>
 </body>
